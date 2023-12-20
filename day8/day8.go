@@ -1,87 +1,140 @@
 package day8
 
 import (
-	"regexp"
+    "regexp"
 )
 
 var nodeRegex = regexp.MustCompile(`(\w{3}) = \((\w{3}), (\w{3})\)`)
 
+type TreeNode struct {
+    key         string
+    left, right *TreeNode
+}
+
 type Node struct {
-	key, left, right string
+    key, left, right string
 }
 
 type Instruction struct {
-	instr string
-	index int
+    instr string
+    index int
 }
 
 func (i *Instruction) next() byte {
-	value := i.instr[i.index]
-	i.index++
-	if i.index >= len(i.instr) {
-		i.index = 0
-	}
-	return value
+    value := i.instr[i.index]
+    i.index++
+    if i.index >= len(i.instr) {
+        i.index = 0
+    }
+    return value
 }
 
 func Part1(lines []string) int {
-	count := 0
-	instr, nodeMap := parseNodes(lines)
-	node := nodeMap["AAA"]
-	for {
-		side := instr.next()
-		var next string
-		switch side {
-		case 'L':
-			next = node.left
-		case 'R':
-			next = node.right
-		}
-		node = nodeMap[next]
-		count++
+    instr, nodeMap, _ := parseNodes(lines, func(Node) bool { return false })
+    node := nodeMap["AAA"]
+    count := 0
+    for node.key != "ZZZ" {
+        side := instr.next()
+        var next string
+        switch side {
+        case 'L':
+            next = node.left
+        case 'R':
+            next = node.right
+        }
+        node = nodeMap[next]
+        count++
+    }
 
-		if node.key == "ZZZ" {
-			break
-		}
-	}
-
-	return count
+    return count
 }
 
 func Part2(lines []string) int {
-	return -1
+    count := 0
+    instr, nodeMap, nodes := parseNodes(lines, func(n Node) bool { return n.key[2] == 'A' })
+    completedNodes := make(map[Node]int)
+    var firstNodes []Node
+    firstNodes = append(firstNodes, nodes...)
+    result := -1
+
+    for len(completedNodes) != len(nodes) {
+        side := instr.next()
+        for i, node := range nodes {
+            if _, ok := completedNodes[firstNodes[i]]; ok {
+                continue
+            }
+            var next string
+            switch side {
+            case 'L':
+                next = node.left
+            case 'R':
+                next = node.right
+            }
+            nodes[i] = nodeMap[next]
+
+            if node.key[2] == 'Z' {
+                completedNodes[firstNodes[i]] = count
+                if result == -1 {
+                    result = count
+                } else {
+                    result = LCM(result, count)
+                }
+            }
+        }
+        count++
+    }
+
+    return result
 }
 
-func parseNodes(lines []string) (Instruction, map[string]Node) {
-	nodeMap := make(map[string]Node)
-	instr := Instruction{
-		lines[0],
-		0,
-	}
+func parseNodes(lines []string, matcher func(Node) bool) (Instruction, map[string]Node, []Node) {
+    nodeMap := make(map[string]Node)
+    var nodes []Node
+    instr := Instruction{
+        lines[0],
+        0,
+    }
 
-	for i := 1; i < len(lines); i++ {
-		if len(lines[i]) == 0 {
-			continue
-		}
-		groups := nodeGroups(lines[i])
-		if groups == nil {
-			continue
-		}
-		node := Node{
-			groups[0],
-			groups[1],
-			groups[2],
-		}
-		nodeMap[groups[0]] = node
-	}
+    for i := 1; i < len(lines); i++ {
+        if len(lines[i]) == 0 {
+            continue
+        }
+        groups := nodeGroups(lines[i])
+        if groups == nil {
+            continue
+        }
+        node := Node{
+            groups[0],
+            groups[1],
+            groups[2],
+        }
+        nodeMap[groups[0]] = node
+        if matcher(node) {
+            nodes = append(nodes, node)
+        }
+    }
 
-	return instr, nodeMap
+    return instr, nodeMap, nodes
 }
 
 func nodeGroups(line string) []string {
-	matches := nodeRegex.FindAllStringSubmatch(line, -1)
-	if len(matches) == 0 {
-		return nil
-	}
-	return matches[0][1:]
+    matches := nodeRegex.FindAllStringSubmatch(line, -1)
+    if len(matches) == 0 {
+        return nil
+    }
+    return matches[0][1:]
+}
+
+// GCD credits: https://en.wikipedia.org/wiki/Greatest_common_divisor#Euclidean_algorithm
+// (a, b) -> (b, a mod b) repeat until (d, 0) where d = GCD
+func GCD(a, b int) int {
+    if b == 0 {
+        return a
+    }
+    return GCD(b, a%b)
+}
+
+// LCM credits: https://en.wikipedia.org/wiki/Least_common_multiple#Using_the_greatest_common_divisor
+func LCM(a, b int) int {
+    return a * b / GCD(a, b)
 }
