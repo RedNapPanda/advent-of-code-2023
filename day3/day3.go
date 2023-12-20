@@ -19,9 +19,7 @@ type Pair struct {
 
 func Part1(lines []string) int {
 	sum := 0
-	var matrix [][]byte
-	var coords []Number
-	fillMatrixAndCoords(lines, &matrix, &coords)
+	coords, matrix := fillMatrixAndCoords(lines)
 
 	for _, coord := range coords {
 		row := max(0, coord.row-1)
@@ -39,11 +37,9 @@ func Part1(lines []string) int {
 }
 
 func Part2(lines []string) int {
-	var matrix [][]byte
 	sum := 0
-	var coords []Number
 	gearMap := make(map[string]*Pair)
-	fillMatrixAndCoords(lines, &matrix, &coords)
+	coords, matrix := fillMatrixAndCoords(lines)
 
 	for _, coord := range coords {
 		row := max(0, coord.row-1)
@@ -72,13 +68,16 @@ func Part2(lines []string) int {
 	return sum
 }
 
-func fillMatrixAndCoords(lines []string, matrix *[][]byte, coords *[]Number) {
+func fillMatrixAndCoords(lines []string) ([]Number, [][]byte) {
+	var matrix [][]byte
+	var coords []Number
 	for row := 0; row < len(lines); row++ {
 		bytes := []byte(lines[row])
-		*matrix = append(*matrix, bytes)
+		matrix = append(matrix, bytes)
 		lineCoords := parseLine(bytes, row)
-		*coords = append(*coords, lineCoords...)
+		coords = append(coords, lineCoords...)
 	}
+	return coords, matrix
 }
 
 func parseLine(bytes []byte, row int) []Number {
