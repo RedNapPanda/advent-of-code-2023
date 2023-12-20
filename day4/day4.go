@@ -42,7 +42,7 @@ func Part2(lines []string) int {
 			intersect[v] = v
 		}
 
-		incrementValue(i, 1, copies)
+		add(i, 1, copies)
 		matches := 0
 		for _, v := range hand.cards {
 			if _, ok := intersect[v]; ok {
@@ -51,7 +51,7 @@ func Part2(lines []string) int {
 		}
 		if currentCopies, ok := copies[i]; ok {
 			for j := 1; j <= matches; j++ {
-				incrementValue(i+j, currentCopies, copies)
+				add(i+j, currentCopies, copies)
 			}
 		}
 	}
@@ -78,10 +78,10 @@ func parseLine(line string) Hand {
 	}
 }
 
-func incrementValue(i int, value int, copies map[int]int) {
+func add(i int, value int, copies map[int]int) {
 	if _, ok := copies[i]; ok {
 		copies[i] += value
 	} else {
-		copies[i] = 1
+		copies[i] = value
 	}
 }

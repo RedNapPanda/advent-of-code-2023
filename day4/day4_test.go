@@ -38,5 +38,5 @@ func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(4)
 	output := Part2(input)
 
-	assert.Equal(t, 30, output)
+	assert.Equal(t, 23806951, output)
 }
