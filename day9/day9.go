@@ -28,7 +28,7 @@ func (h *History) diffTree() {
 	}
 }
 
-func (h *History) fill() {
+func (h *History) expand() {
 	lastLayer := len(h.history) - 1
 	for layer := lastLayer; layer >= 0; layer-- {
 		if layer == lastLayer {
@@ -51,7 +51,7 @@ func Process(lines []string) (int, int) {
 	for _, line := range lines {
 		history := parseHistory(line)
 		history.diffTree()
-		history.fill()
+		history.expand()
 		next += history.history[0][len(history.history[0])-1]
 		prev += history.history[0][0]
 	}
