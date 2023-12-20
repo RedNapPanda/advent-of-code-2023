@@ -22,18 +22,18 @@ func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputData(9)
 	output := Part1(input)
 
-	assert.Equal(t, -1, output)
+	assert.Equal(t, 1938731307, output)
 }
 
 func TestPart2Example(t *testing.T) {
 	output := Part2(example)
 
-	assert.Equal(t, 0, output)
+	assert.Equal(t, 2, output)
 }
 
 func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(9)
 	output := Part2(input)
 
-	assert.Equal(t, 0, output)
+	assert.Equal(t, 948, output)
 }

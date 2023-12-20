@@ -28,17 +28,21 @@ func (h *History) diffTree() {
 	}
 }
 
-func (h *History) fillNext() {
-	lastLayerIdx := len(h.history) - 1
-	for layer := lastLayerIdx; layer >= 0; layer-- {
-		if layer == lastLayerIdx {
-			h.history[layer] = append(h.history[layer], 0)
+func (h *History) fill() {
+	lastLayer := len(h.history) - 1
+	for layer := lastLayer; layer >= 0; layer-- {
+		if layer == lastLayer {
+			// Prepend/Append hack since this layer is purely zeroes
+			h.history[layer] = append(h.history[layer], 0, 0)
 			continue
 		}
 		lastIndex := len(h.history[layer]) - 1
-		a := h.history[layer][lastIndex]
-		b := h.history[layer+1][lastIndex]
-		h.history[layer] = append(h.history[layer], a+b)
+		nextA := h.history[layer][lastIndex]
+		nextB := h.history[layer+1][lastIndex+1]
+		prevA := h.history[layer][0]
+		prevB := h.history[layer+1][0]
+		h.history[layer] = append(h.history[layer], nextA+nextB)
+		h.history[layer] = append([]int{prevA - prevB}, h.history[layer]...)
 	}
 }
 
@@ -47,7 +51,7 @@ func Part1(lines []string) int {
 	for _, line := range lines {
 		history := parseHistory(line)
 		history.diffTree()
-		history.fillNext()
+		history.fill()
 		sum += history.history[0][len(history.history[0])-1]
 	}
 
@@ -55,7 +59,15 @@ func Part1(lines []string) int {
 }
 
 func Part2(lines []string) int {
-	return -1
+	sum := 0
+	for _, line := range lines {
+		history := parseHistory(line)
+		history.diffTree()
+		history.fill()
+		sum += history.history[0][0]
+	}
+
+	return sum
 }
 
 func parseHistory(line string) History {
