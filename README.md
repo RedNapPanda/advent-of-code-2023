@@ -8,6 +8,8 @@ The one thing I dislike about adventofcode is that there are plenty of ways to w
 Random Snippets that were used here but don't need another file
 
 Generating the files
+
+Powershell
 ```powershell
 mkdir inputs
  for ($i = 1; $i -lt 26; $i++) { 
@@ -22,6 +24,7 @@ mkdir inputs
  }
 ```
 
+Fish
 ```fish
 mkdir inputs
 for i in (seq 1 25)
