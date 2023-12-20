@@ -13,27 +13,27 @@ var example = []string{
 }
 
 func TestPart1Example(t *testing.T) {
-	output := Part1(example)
+	output, _ := Process(example)
 
 	assert.Equal(t, 114, output)
 }
 
 func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputData(9)
-	output := Part1(input)
+	output, _ := Process(input)
 
 	assert.Equal(t, 1938731307, output)
 }
 
 func TestPart2Example(t *testing.T) {
-	output := Part2(example)
+	_, output := Process(example)
 
 	assert.Equal(t, 2, output)
 }
 
 func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(9)
-	output := Part2(input)
+	_, output := Process(input)
 
 	assert.Equal(t, 948, output)
 }

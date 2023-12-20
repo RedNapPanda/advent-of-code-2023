@@ -46,28 +46,17 @@ func (h *History) fill() {
 	}
 }
 
-func Part1(lines []string) int {
-	sum := 0
+func Process(lines []string) (int, int) {
+	next, prev := 0, 0
 	for _, line := range lines {
 		history := parseHistory(line)
 		history.diffTree()
 		history.fill()
-		sum += history.history[0][len(history.history[0])-1]
+		next += history.history[0][len(history.history[0])-1]
+		prev += history.history[0][0]
 	}
 
-	return sum
-}
-
-func Part2(lines []string) int {
-	sum := 0
-	for _, line := range lines {
-		history := parseHistory(line)
-		history.diffTree()
-		history.fill()
-		sum += history.history[0][0]
-	}
-
-	return sum
+	return next, prev
 }
 
 func parseHistory(line string) History {
