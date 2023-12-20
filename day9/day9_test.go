@@ -15,15 +15,14 @@ var example = []string{
 func TestPart1Example(t *testing.T) {
 	output := Part1(example)
 
-	// 18 + 28 + 68 = 114
-	assert.Equal(t, 0, output)
+	assert.Equal(t, 114, output)
 }
 
 func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputData(9)
 	output := Part1(input)
 
-	assert.Equal(t, 0, output)
+	assert.Equal(t, -1, output)
 }
 
 func TestPart2Example(t *testing.T) {

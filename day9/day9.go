@@ -9,16 +9,49 @@ type History struct {
 	history [][]int
 }
 
-func Part1(lines []string) int {
-	histories := make([]History, len(lines))
-	for i, line := range lines {
-		histories[i] = parseHistory(line)
+func (h *History) diffTree() {
+	layer := 0
+	for length := len(h.history[0]) - 1; length > 0; length-- {
+		diff := make([]int, length)
+		zeroCount := 0
+		for i := 0; i < length; i++ {
+			diff[i] = h.history[layer][i+1] - h.history[layer][i]
+			if diff[i] == 0 {
+				zeroCount++
+			}
+		}
+		h.history = append(h.history, diff)
+		layer++
+		if zeroCount == length {
+			break
+		}
 	}
-	for _, history := range histories {
-		fillHistory(history)
+}
+
+func (h *History) fillNext() {
+	lastLayerIdx := len(h.history) - 1
+	for layer := lastLayerIdx; layer >= 0; layer-- {
+		if layer == lastLayerIdx {
+			h.history[layer] = append(h.history[layer], 0)
+			continue
+		}
+		lastIndex := len(h.history[layer]) - 1
+		a := h.history[layer][lastIndex]
+		b := h.history[layer+1][lastIndex]
+		h.history[layer] = append(h.history[layer], a+b)
+	}
+}
+
+func Part1(lines []string) int {
+	sum := 0
+	for _, line := range lines {
+		history := parseHistory(line)
+		history.diffTree()
+		history.fillNext()
+		sum += history.history[0][len(history.history[0])-1]
 	}
 
-	return -1
+	return sum
 }
 
 func Part2(lines []string) int {
@@ -35,8 +68,4 @@ func parseHistory(line string) History {
 	return History{
 		[][]int{dataPoints},
 	}
-}
-
-func fillHistory(history History) {
-
 }
