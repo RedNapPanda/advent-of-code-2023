@@ -1,25 +1,33 @@
 package day1
 
 import (
-	"runtime"
 	"strings"
 )
 
-type processor func(c chan<- int, line string)
+type processor func(line string) int
+type isNumber func(string, string) bool
+
+var numbers = [...]string{
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+}
 
 func Process(lines []string, fn processor) int {
-	runtime.GOMAXPROCS(8)
-	c := make(chan int, 16)
-	defer close(c)
 	sum := 0
 	for index := range lines {
-		go fn(c, lines[index])
-		sum += <-c
+		sum += fn(lines[index])
 	}
 	return sum
 }
 
-func Part1(c chan<- int, line string) {
+func Part1(line string) int {
 	first, second := 0, 0
 	for j := 0; j < len(line); j++ {
 		if first != 0 && second != 0 {
@@ -34,10 +42,10 @@ func Part1(c chan<- int, line string) {
 			second = toAsciiDigit(char)
 		}
 	}
-	c <- (first * 10) + second
+	return (first * 10) + second
 }
 
-func Part2(c chan<- int, line string) {
+func Part2(line string) int {
 	first, second := 0, 0
 	for j := 0; j < len(line); j++ {
 		if first != 0 && second != 0 {
@@ -62,7 +70,7 @@ func Part2(c chan<- int, line string) {
 			}
 		}
 	}
-	c <- (first * 10) + second
+	return (first * 10) + second
 }
 
 func isAsciiDigit(char uint8) bool {
@@ -73,19 +81,7 @@ func toAsciiDigit(char uint8) int {
 	return int(char - 48)
 }
 
-var numbers = [...]string{
-	"one",
-	"two",
-	"three",
-	"four",
-	"five",
-	"six",
-	"seven",
-	"eight",
-	"nine",
-}
-
-func isTextNumber(s string, fn func(string, string) bool) int {
+func isTextNumber(s string, fn isNumber) int {
 	for index, number := range numbers {
 		if fn(s, number) {
 			return index + 1
