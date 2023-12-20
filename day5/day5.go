@@ -44,7 +44,7 @@ func Part1(lines []string) int {
 	index := 0
 	lowest := math.MaxInt
 	for _, line := range lines {
-		if line == "" {
+		if len(line) == 0 {
 			continue
 		}
 		if strings.HasPrefix(line, seedPrefix) {
