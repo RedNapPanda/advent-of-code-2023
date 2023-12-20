@@ -1,1 +1,1 @@
-package day24_test
+package day24

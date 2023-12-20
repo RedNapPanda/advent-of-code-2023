@@ -52,15 +52,13 @@ func Part1(lines []string) int {
 func Part2(lines []string) int {
 	count := 0
 	instr, nodeMap, nodes := parseNodes(lines, func(n Node) bool { return n.key[2] == 'A' })
-	completedNodes := make(map[int]int)
 	result := -1
 
-	for len(completedNodes) != len(nodes) {
-		side := instr.next()
-		for i, node := range nodes {
-			if _, ok := completedNodes[i]; ok {
-				continue
-			}
+	for _, node := range nodes {
+		instr.index = 0
+		count = 0
+		for node.key[2] != 'Z' {
+			side := instr.next()
 			var next string
 			switch side {
 			case 'L':
@@ -68,18 +66,14 @@ func Part2(lines []string) int {
 			case 'R':
 				next = node.right
 			}
-			nodes[i] = nodeMap[next]
-
-			if node.key[2] == 'Z' {
-				completedNodes[i] = count
-				if result == -1 {
-					result = count
-				} else {
-					result = LCM(result, count)
-				}
-			}
+			node = nodeMap[next]
+			count++
 		}
-		count++
+		if result == -1 {
+			result = count
+		} else {
+			result = LCM(result, count)
+		}
 	}
 
 	return result

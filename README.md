@@ -18,7 +18,7 @@ for ($i = 1; $i -lt 26; $i++) {
     $null > day$i.go
     Set-Content -Path .\day$i.go -Value "package day$i"
     $null > day$($i)_test.go
-    Set-Content -Path .\day$($i)_test.go -Value "package day$($i)_test"
+    Set-Content -Path .\day$($i)_test.go -Value "package dayi"
     cd ..
     cd inputs
     $null > day$i.txt
@@ -32,7 +32,7 @@ mkdir inputs
 for i in (seq 1 25)
     cd day$i
     echo "package day$i" > day$i.go
-    echo "package day$i_test" > day$i_test.go
+    echo "package day$i" > day$i_test.go
     cd ..
     cd inputs
     touch day$i.txt

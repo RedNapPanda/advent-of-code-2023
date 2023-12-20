@@ -1,1 +1,1 @@
-package day22_test
+package day22
