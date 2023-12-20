@@ -30,12 +30,12 @@ func TestPart1(t *testing.T) {
 func TestPart2Example(t *testing.T) {
 	output := Part2(example)
 
-	assert.Equal(t, 0, output)
+	assert.Equal(t, 5905, output)
 }
 
 func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(7)
 	output := Part2(input)
 
-	assert.Equal(t, 0, output)
+	assert.Equal(t, 249817836, output)
 }

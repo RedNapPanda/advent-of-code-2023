@@ -1,7 +1,6 @@
 package day6
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,31 +22,36 @@ var cardMap = map[byte]int{
 	'2': 2,
 }
 
+func getCard(char byte, joker bool) int {
+	if joker && char == 'J' {
+		return 1
+	}
+	return cardMap[char]
+}
+
 type Hand struct {
 	handStr string
 	cards   map[byte]int
 	bet     int
 }
 
-/*
-Ranks
-5 of a kind:    6
-4 of a kind:    5
-Full house:     4
-3 of a kind:    3
-2 pair:         2
-1 pair:         1
-high card:      0
-*/
-func (h *Hand) rank() int {
+const FIVE_OF_A_KIND = 6
+const FOUR_OF_A_KIND = 5
+const FULL_HOUSE = 4
+const THREE_OF_A_KIND = 3
+const TWO_PAIR = 2
+const ONE_PAIR = 1
+const HIGH_CARD = 0
+
+func (h *Hand) handType() int {
 	three := false
 	pairCount := 0
 	for _, v := range h.cards {
 		switch v {
 		case 5:
-			return 6
+			return FIVE_OF_A_KIND
 		case 4:
-			return 5
+			return FOUR_OF_A_KIND
 		case 3:
 			three = true
 		case 2:
@@ -55,113 +59,95 @@ func (h *Hand) rank() int {
 		}
 	}
 	if three {
-		return pairCount + 3
+		if pairCount > 0 {
+			return FULL_HOUSE
+		}
+		return THREE_OF_A_KIND
 	}
-	return pairCount
+	switch pairCount {
+	case 2:
+		return TWO_PAIR
+	case 1:
+		return ONE_PAIR
+	default:
+		return HIGH_CARD
+	}
 }
 
 func Part1(lines []string) int {
-	rankMap := make(map[int][]Hand)
+	var hands []Hand
 	for _, line := range lines {
-		handMap := make(map[byte]int)
 		split := strings.Split(line, " ")
 		bet, _ := strconv.Atoi(split[1])
+		handMap := make(map[byte]int)
 		for _, b := range []byte(split[0]) {
-			if value, ok := handMap[b]; ok {
-				handMap[b] = value + 1
+			if _, ok := handMap[b]; ok {
+				handMap[b]++
 			} else {
 				handMap[b] = 1
 			}
 		}
-		hand := Hand{split[0], handMap, bet}
-		rank := hand.rank()
-
-		if ranks, ok := rankMap[rank]; ok {
-			rankMap[rank] = append(ranks, hand)
-		} else {
-			rankMap[rank] = []Hand{hand}
-		}
+		hands = append(hands, Hand{split[0], handMap, bet})
 	}
 
-	sum := 0
-	rank := 1
-	for i := 0; i < 7; i++ {
-		if _, ok := rankMap[i]; !ok {
-			continue
-		}
-		hands := rankMap[i]
-		sort.Slice(hands, func(i, j int) bool {
-			for idx, iChar := range []byte(hands[i].handStr) {
-				jChar := hands[j].handStr[idx]
-				if iChar == jChar {
-					continue
-				}
-				return cardMap[iChar] < cardMap[jChar]
-			}
-			return true
-		})
-		for j := 0; j < len(hands); j++ {
-
-		}
-		for _, hand := range hands {
-			sum += rank * hand.bet
-			rank++
-		}
-	}
-	return sum
+	sortHands(hands, false)
+	return calcWinnings(hands)
 }
 
 func Part2(lines []string) int {
-	rankMap := make(map[int][]Hand)
+	var hands []Hand
 	for _, line := range lines {
-		handMap := make(map[byte]int)
 		split := strings.Split(line, " ")
 		bet, _ := strconv.Atoi(split[1])
+		jokers := strings.Count(split[0], "J")
+		key, highest := byte(0), 0
+		handMap := make(map[byte]int)
 		for _, b := range []byte(split[0]) {
-			if value, ok := handMap[b]; ok {
-				handMap[b] = value + 1
+			if b == 'J' {
+				continue
+			}
+			if _, ok := handMap[b]; ok {
+				handMap[b]++
 			} else {
 				handMap[b] = 1
 			}
+			if highest <= handMap[b] {
+				highest = handMap[b]
+				key = b
+			}
 		}
-		hand := Hand{split[0], handMap, bet}
-		rank := hand.rank()
-		// fmt.Printf("cards: rank(%d) | %+v\n", rank, hand)
-
-		if ranks, ok := rankMap[rank]; ok {
-			rankMap[rank] = append(ranks, hand)
-		} else {
-			rankMap[rank] = []Hand{hand}
-		}
+		delete(handMap, key)
+		handMap[key] = highest + jokers
+		hands = append(hands, Hand{split[0], handMap, bet})
 	}
 
-	sum := 0
-	rank := 1
-	for i := 0; i < 7; i++ {
-		if _, ok := rankMap[i]; !ok {
-			continue
-		}
-		hands := rankMap[i]
-		fmt.Printf("rank(%d) hands: %d\n", i, len(hands))
-		sort.Slice(hands, func(i, j int) bool {
-			for idx, iChar := range []byte(hands[i].handStr) {
-				jChar := hands[j].handStr[idx]
-				if iChar == jChar {
+	sortHands(hands, true)
+	return calcWinnings(hands)
+}
+
+func sortHands(hands []Hand, withJoker bool) {
+	sort.SliceStable(hands, func(i, j int) bool {
+		hand1, hand2 := hands[i], hands[j]
+		type1, type2 := hand1.handType(), hand2.handType()
+		if type1 != type2 {
+			return type1 < type2
+		} else {
+			for idx, char1 := range []byte(hand1.handStr) {
+				char2 := hand2.handStr[idx]
+				if char1 == char2 {
 					continue
 				}
-				return cardMap[iChar] < cardMap[jChar]
+				return getCard(char1, withJoker) < getCard(char2, withJoker)
 			}
 			return true
-		})
-		fmt.Printf("Hands: %+v\n", hands)
-		for j := 0; j < len(hands); j++ {
+		}
+	})
+}
 
-		}
-		for _, hand := range hands {
-			fmt.Printf("sum %d | value %d | rank %d | hand %+v\n", sum, rank*hand.bet, rank, hand)
-			sum += rank * hand.bet
-			rank++
-		}
+func calcWinnings(hands []Hand) int {
+	sum := 0
+	for i := 1; i <= len(hands); i++ {
+		sum += i * hands[i-1].bet
 	}
 	return sum
 }
