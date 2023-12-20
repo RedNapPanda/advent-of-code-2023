@@ -42,5 +42,5 @@ func TestPart2(t *testing.T) {
 	input, _ := GetInputData(1)
 	output := Process(input, ProcessPart2)
 	fmt.Printf("Sum: %d\n", output)
-	//assert.Equal(t, 54450, output)
+	assert.Equal(t, 54265, output)
 }

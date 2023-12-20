@@ -11,7 +11,7 @@ func GetInputData(day int) ([]string, error) {
 		return nil, fmt.Errorf("incorrect day or part number: day %d", day)
 	}
 	pwd, _ := os.Getwd()
-	path := pwd + fmt.Sprintf("/inputs/day%d/input.txt", day)
+	path := pwd + fmt.Sprintf("/inputs/day%d.txt", day)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
