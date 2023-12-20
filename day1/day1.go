@@ -73,11 +73,11 @@ func Part2(line string) int {
 	return (first * 10) + second
 }
 
-func isAsciiDigit(char uint8) bool {
+func isAsciiDigit(char byte) bool {
 	return char >= 48 && char <= 57
 }
 
-func toAsciiDigit(char uint8) int {
+func toAsciiDigit(char byte) int {
 	return int(char - 48)
 }
 
