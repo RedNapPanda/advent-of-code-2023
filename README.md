@@ -12,16 +12,16 @@ Generating the files
 Powershell
 ```powershell
 mkdir inputs
- for ($i = 1; $i -lt 26; $i++) { 
+for ($i = 1; $i -lt 26; $i++) { 
     mkdir day$1
     cd day$i
     $null > day$i.go
-    $null > day$i_test.go
+    $null > day$($i)_test.go
     cd ..
     cd inputs
     $null > day$i.txt
     cd ..
- }
+}
 ```
 
 Fish
