@@ -18,15 +18,10 @@ type Pair struct {
 }
 
 func Part1(lines []string) int {
-	var matrix [][]byte
 	sum := 0
+	var matrix [][]byte
 	var coords []Number
-	for row := 0; row < len(lines); row++ {
-		bytes := []byte(lines[row])
-		matrix = append(matrix, bytes)
-		lineCoords := parseLine(bytes, row)
-		coords = append(coords, lineCoords...)
-	}
+	fillMatrixAndCoords(lines, &matrix, &coords)
 
 	for _, coord := range coords {
 		row := max(0, coord.row-1)
@@ -48,12 +43,7 @@ func Part2(lines []string) int {
 	sum := 0
 	var coords []Number
 	gearMap := make(map[string]*Pair)
-	for row := 0; row < len(lines); row++ {
-		bytes := []byte(lines[row])
-		matrix = append(matrix, bytes)
-		lineCoords := parseLine(bytes, row)
-		coords = append(coords, lineCoords...)
-	}
+	fillMatrixAndCoords(lines, &matrix, &coords)
 
 	for _, coord := range coords {
 		row := max(0, coord.row-1)
@@ -80,6 +70,15 @@ func Part2(lines []string) int {
 	}
 
 	return sum
+}
+
+func fillMatrixAndCoords(lines []string, matrix *[][]byte, coords *[]Number) {
+	for row := 0; row < len(lines); row++ {
+		bytes := []byte(lines[row])
+		*matrix = append(*matrix, bytes)
+		lineCoords := parseLine(bytes, row)
+		*coords = append(*coords, lineCoords...)
+	}
 }
 
 func parseLine(bytes []byte, row int) []Number {
