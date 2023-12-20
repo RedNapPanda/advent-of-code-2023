@@ -1,1 +1,1 @@
-ÿş
+package day12_test

@@ -1,1 +1,1 @@
-ÿş
+package day24_test

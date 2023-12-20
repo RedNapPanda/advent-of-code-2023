@@ -1,1 +1,1 @@
-ÿş
+package day25_test

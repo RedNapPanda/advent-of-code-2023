@@ -16,7 +16,9 @@ for ($i = 1; $i -lt 26; $i++) {
     mkdir day$1
     cd day$i
     $null > day$i.go
+    Set-Content -Path .\day$i.go -Value "package day$i"
     $null > day$($i)_test.go
+    Set-Content -Path .\day$($i)_test.go -Value "package day$($i)_test"
     cd ..
     cd inputs
     $null > day$i.txt
@@ -24,13 +26,13 @@ for ($i = 1; $i -lt 26; $i++) {
 }
 ```
 
-Fish
+Fish (needs testing)
 ```fish
 mkdir inputs
 for i in (seq 1 25)
     cd day$i
-    touch day$i.go
-    touch day$i_test.go
+    echo "package day$i" > day$i.go
+    echo "package day$i_test" > day$i_test.go
     cd ..
     cd inputs
     touch day$i.txt

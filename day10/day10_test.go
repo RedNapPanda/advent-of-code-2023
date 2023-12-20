@@ -1,1 +1,1 @@
-ÿş
+package day10_test

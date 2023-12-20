@@ -1,1 +1,1 @@
-ÿş
+package day18_test

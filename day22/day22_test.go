@@ -1,1 +1,1 @@
-ÿş
+package day22_test
