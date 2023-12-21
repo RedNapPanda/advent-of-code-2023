@@ -5,14 +5,14 @@ import (
 	"strconv"
 )
 
-type Number struct {
+type number struct {
 	value  int
 	row    int
 	index  int
 	length int
 }
 
-type Pair struct {
+type pair struct {
 	first  int
 	second int
 }
@@ -38,7 +38,7 @@ func Part1(lines []string) int {
 
 func Part2(lines []string) int {
 	sum := 0
-	gearMap := make(map[string]*Pair)
+	gearMap := make(map[string]*pair)
 	coords, matrix := fillMatrixAndCoords(lines)
 
 	for _, coord := range coords {
@@ -53,7 +53,7 @@ func Part2(lines []string) int {
 				if ok {
 					gear.second = coord.value
 				} else {
-					gearMap[key] = &Pair{first: coord.value}
+					gearMap[key] = &pair{first: coord.value}
 				}
 			}
 		}
@@ -68,9 +68,9 @@ func Part2(lines []string) int {
 	return sum
 }
 
-func fillMatrixAndCoords(lines []string) ([]Number, [][]byte) {
+func fillMatrixAndCoords(lines []string) ([]number, [][]byte) {
 	var matrix [][]byte
-	var coords []Number
+	var coords []number
 	for row := 0; row < len(lines); row++ {
 		bytes := []byte(lines[row])
 		matrix = append(matrix, bytes)
@@ -80,8 +80,8 @@ func fillMatrixAndCoords(lines []string) ([]Number, [][]byte) {
 	return coords, matrix
 }
 
-func parseLine(bytes []byte, row int) []Number {
-	var coords []Number
+func parseLine(bytes []byte, row int) []number {
+	var coords []number
 	for i := 0; i < len(bytes); i++ {
 		if bytes[i] == '.' {
 			continue
@@ -98,7 +98,7 @@ func parseLine(bytes []byte, row int) []Number {
 		if digits != nil {
 			digitStr := string(digits)
 			value, _ := strconv.Atoi(digitStr)
-			coords = append(coords, Number{
+			coords = append(coords, number{
 				value:  value,
 				row:    row,
 				index:  startIndex,

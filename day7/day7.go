@@ -29,7 +29,7 @@ func getCard(char byte, joker bool) int {
 	return cardMap[char]
 }
 
-type Hand struct {
+type hand struct {
 	handStr string
 	cards   map[byte]int
 	bet     int
@@ -43,7 +43,7 @@ const TWO_PAIR = 2
 const ONE_PAIR = 1
 const HIGH_CARD = 0
 
-func (h *Hand) handType() int {
+func (h *hand) handType() int {
 	three := false
 	pairCount := 0
 	for _, v := range h.cards {
@@ -75,7 +75,7 @@ func (h *Hand) handType() int {
 }
 
 func Part1(lines []string) int {
-	var hands []Hand
+	var hands []hand
 	for _, line := range lines {
 		split := strings.Split(line, " ")
 		bet, _ := strconv.Atoi(split[1])
@@ -87,7 +87,7 @@ func Part1(lines []string) int {
 				handMap[b] = 1
 			}
 		}
-		hands = append(hands, Hand{split[0], handMap, bet})
+		hands = append(hands, hand{split[0], handMap, bet})
 	}
 
 	sortHands(hands, false)
@@ -95,7 +95,7 @@ func Part1(lines []string) int {
 }
 
 func Part2(lines []string) int {
-	var hands []Hand
+	var hands []hand
 	for _, line := range lines {
 		split := strings.Split(line, " ")
 		bet, _ := strconv.Atoi(split[1])
@@ -118,14 +118,14 @@ func Part2(lines []string) int {
 		}
 		delete(handMap, key)
 		handMap[key] = highest + jokers
-		hands = append(hands, Hand{split[0], handMap, bet})
+		hands = append(hands, hand{split[0], handMap, bet})
 	}
 
 	sortHands(hands, true)
 	return calcWinnings(hands)
 }
 
-func sortHands(hands []Hand, withJoker bool) {
+func sortHands(hands []hand, withJoker bool) {
 	sort.SliceStable(hands, func(i, j int) bool {
 		hand1, hand2 := hands[i], hands[j]
 		type1, type2 := hand1.handType(), hand2.handType()
@@ -144,7 +144,7 @@ func sortHands(hands []Hand, withJoker bool) {
 	})
 }
 
-func calcWinnings(hands []Hand) int {
+func calcWinnings(hands []hand) int {
 	sum := 0
 	for i := 1; i <= len(hands); i++ {
 		sum += i * hands[i-1].bet

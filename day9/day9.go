@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-type History struct {
+type history struct {
 	history [][]int
 }
 
-func (h *History) diffTree() {
+func (h *history) diffTree() {
 	layer := 0
 	for length := len(h.history[0]) - 1; length > 0; length-- {
 		diff := make([]int, length)
@@ -28,7 +28,7 @@ func (h *History) diffTree() {
 	}
 }
 
-func (h *History) expand() {
+func (h *history) expand() {
 	lastLayer := len(h.history) - 1
 	for layer := lastLayer; layer >= 0; layer-- {
 		if layer == lastLayer {
@@ -46,6 +46,7 @@ func (h *History) expand() {
 	}
 }
 
+// Process returns the newly generated (future, past) data points
 func Process(lines []string) (int, int) {
 	next, prev := 0, 0
 	for _, line := range lines {
@@ -59,14 +60,14 @@ func Process(lines []string) (int, int) {
 	return next, prev
 }
 
-func parseHistory(line string) History {
+func parseHistory(line string) history {
 	pointStrs := strings.Fields(line)
 	dataPoints := make([]int, len(pointStrs))
 	for i, pointStr := range pointStrs {
 		v, _ := strconv.Atoi(pointStr)
 		dataPoints[i] = v
 	}
-	return History{
+	return history{
 		[][]int{dataPoints},
 	}
 }

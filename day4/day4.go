@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type Hand struct {
+type hand struct {
 	cards   []string
 	winners []string
 }
@@ -61,7 +61,7 @@ func Part2(lines []string) int {
 	return sum
 }
 
-func parseLine(line string) Hand {
+func parseLine(line string) hand {
 	prefix := strings.Split(line, ":")
 	pipe := strings.Split(prefix[1], "|")
 	var cards, winners []string
@@ -72,7 +72,7 @@ func parseLine(line string) Hand {
 		cards = append(cards, card)
 	}
 
-	return Hand{
+	return hand{
 		cards:   cards,
 		winners: winners,
 	}

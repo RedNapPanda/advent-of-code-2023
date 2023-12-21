@@ -6,21 +6,21 @@ import (
 
 var nodeRegex = regexp.MustCompile(`(\w{3}) = \((\w{3}), (\w{3})\)`)
 
-type TreeNode struct {
+type treeNode struct {
 	key         string
-	left, right *TreeNode
+	left, right *treeNode
 }
 
-type Node struct {
+type node struct {
 	key, left, right string
 }
 
-type Instruction struct {
+type instruction struct {
 	instr string
 	index int
 }
 
-func (i *Instruction) next() byte {
+func (i *instruction) next() byte {
 	value := i.instr[i.index]
 	i.index++
 	if i.index >= len(i.instr) {
@@ -30,7 +30,7 @@ func (i *Instruction) next() byte {
 }
 
 func Part1(lines []string) int {
-	instr, nodeMap, _ := parseNodes(lines, func(Node) bool { return false })
+	instr, nodeMap, _ := parseNodes(lines, func(node) bool { return false })
 	node := nodeMap["AAA"]
 	count := 0
 	for node.key != "ZZZ" {
@@ -51,7 +51,7 @@ func Part1(lines []string) int {
 
 func Part2(lines []string) int {
 	count := 0
-	instr, nodeMap, nodes := parseNodes(lines, func(n Node) bool { return n.key[2] == 'A' })
+	instr, nodeMap, nodes := parseNodes(lines, func(n node) bool { return n.key[2] == 'A' })
 	result := -1
 
 	for _, node := range nodes {
@@ -79,10 +79,10 @@ func Part2(lines []string) int {
 	return result
 }
 
-func parseNodes(lines []string, matcher func(Node) bool) (Instruction, map[string]Node, []Node) {
-	nodeMap := make(map[string]Node)
-	var nodes []Node
-	instr := Instruction{
+func parseNodes(lines []string, matcher func(node) bool) (instruction, map[string]node, []node) {
+	nodeMap := make(map[string]node)
+	var nodes []node
+	instr := instruction{
 		lines[0],
 		0,
 	}
@@ -95,7 +95,7 @@ func parseNodes(lines []string, matcher func(Node) bool) (Instruction, map[strin
 		if groups == nil {
 			continue
 		}
-		node := Node{
+		node := node{
 			groups[0],
 			groups[1],
 			groups[2],

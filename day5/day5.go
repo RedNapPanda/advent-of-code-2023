@@ -18,13 +18,13 @@ var lineKeys = []string{
 	"humidity-to-location map:",
 }
 
-type SeedRange struct {
+type seedRange struct {
 	seed   int
 	length int
 	count  int
 }
 
-func (s *SeedRange) next() bool {
+func (s *seedRange) next() bool {
 	if s.count >= s.length {
 		return false
 	}
@@ -33,13 +33,13 @@ func (s *SeedRange) next() bool {
 	return true
 }
 
-type MapData struct {
+type mapData struct {
 	key      string
 	mappings [][]int
 }
 
 func Part1(lines []string) int {
-	var mapDatas []MapData
+	var mapDatas []mapData
 	var seeds []int
 	index := 0
 	lowest := math.MaxInt
@@ -53,7 +53,7 @@ func Part1(lines []string) int {
 		}
 		if index < len(lineKeys) && line == lineKeys[index] {
 			index++
-			mapDatas = append(mapDatas, MapData{})
+			mapDatas = append(mapDatas, mapData{})
 			continue
 		}
 		m := parseMapSlice(line)
@@ -70,8 +70,8 @@ func Part1(lines []string) int {
 }
 
 func Part2(lines []string) int {
-	var mapDatas []MapData
-	var seedRanges []SeedRange
+	var mapDatas []mapData
+	var seedRanges []seedRange
 	index := 0
 	lowest := math.MaxInt
 	var mutex sync.Mutex
@@ -85,7 +85,7 @@ func Part2(lines []string) int {
 		}
 		if index < len(lineKeys) && line == lineKeys[index] {
 			index++
-			mapDatas = append(mapDatas, MapData{})
+			mapDatas = append(mapDatas, mapData{})
 			continue
 		}
 		m := parseMapSlice(line)
@@ -93,13 +93,13 @@ func Part2(lines []string) int {
 	}
 	wg := sync.WaitGroup{}
 
-	for _, seedRange := range seedRanges {
+	for _, sr := range seedRanges {
 		wg.Add(1)
-		go func(seedRange SeedRange) {
+		go func(sr seedRange) {
 			defer wg.Done()
 			rangeLeast := math.MaxInt
-			for ok := true; ok; ok = seedRange.next() {
-				targetSeed := applyMappings(mapDatas, seedRange.seed)
+			for ok := true; ok; ok = sr.next() {
+				targetSeed := applyMappings(mapDatas, sr.seed)
 				if targetSeed < rangeLeast {
 					rangeLeast = targetSeed
 				}
@@ -109,13 +109,13 @@ func Part2(lines []string) int {
 				lowest = rangeLeast
 			}
 			mutex.Unlock()
-		}(seedRange)
+		}(sr)
 	}
 	wg.Wait()
 	return lowest
 }
 
-func applyMappings(mapDatas []MapData, seed int) int {
+func applyMappings(mapDatas []mapData, seed int) int {
 	for _, mapData := range mapDatas {
 		for _, mapping := range mapData.mappings {
 			v, mapped := mapValue(mapping, seed)
@@ -145,13 +145,13 @@ func parseSeeds(line string) []int {
 	return seeds
 }
 
-func parseSeedRanges(line string) []SeedRange {
+func parseSeedRanges(line string) []seedRange {
 	split := strings.Split(line[len(seedPrefix):], " ")
-	var seeds []SeedRange
+	var seeds []seedRange
 	for i := 0; i < len(split); i += 2 {
 		seed, _ := strconv.Atoi(split[i])
 		length, _ := strconv.Atoi(split[i+1])
-		seeds = append(seeds, SeedRange{seed, length, 0})
+		seeds = append(seeds, seedRange{seed, length, 0})
 	}
 	return seeds
 }

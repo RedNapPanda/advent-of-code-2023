@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-type DiceSet struct {
+type diceSet struct {
 	red   int
 	green int
 	blue  int
 }
 
-type Game struct {
+type game struct {
 	id   int
-	sets []DiceSet
+	sets []diceSet
 }
 
 func Part1(lines []string, maxRed int, maxGreen int, maxBlue int) int {
@@ -47,7 +47,7 @@ func Part2(lines []string) int {
 	return sum
 }
 
-func (game *Game) possible(maxRed int, maxGreen int, maxBlue int) bool {
+func (game *game) possible(maxRed int, maxGreen int, maxBlue int) bool {
 	for _, set := range game.sets {
 		if maxRed < set.red ||
 			maxGreen < set.green ||
@@ -58,20 +58,20 @@ func (game *Game) possible(maxRed int, maxGreen int, maxBlue int) bool {
 	return true
 }
 
-func parseGame(s string) (*Game, error) {
-	gameRegex := regexp.MustCompile(`Game (\d+): (.+)`)
+func parseGame(s string) (*game, error) {
+	gameRegex := regexp.MustCompile(`game (\d+): (.+)`)
 	matches := gameRegex.FindAllStringSubmatch(s, 1)
 
 	id, _ := strconv.Atoi(matches[0][1])
 
-	var sets []DiceSet
+	var sets []diceSet
 	setStrings := strings.Split(matches[0][2], ";")
 	for _, setStr := range setStrings {
 		red, green, blue := parseDiceSet(setStr)
-		sets = append(sets, DiceSet{red, green, blue})
+		sets = append(sets, diceSet{red, green, blue})
 	}
 
-	return &Game{
+	return &game{
 		id:   id,
 		sets: sets,
 	}, nil
@@ -95,7 +95,7 @@ func parseDiceSet(s string) (int, int, int) {
 	return red, green, blue
 }
 
-func minimumDiceSet(game *Game) (int, int, int) {
+func minimumDiceSet(game *game) (int, int, int) {
 	minRed, minGreen, minBlue := -1, -1, -1
 	for _, set := range game.sets {
 		minRed = max(minRed, set.red)

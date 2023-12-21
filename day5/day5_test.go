@@ -62,7 +62,7 @@ func TestPart2Example(t *testing.T) {
 }
 
 // No Goroutines: 195.35s
-// Goroutine per SeedRange: 46.13s
+// Goroutine per seedRange: 46.13s
 func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(5)
 	output := Part2(input)
