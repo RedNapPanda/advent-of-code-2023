@@ -1,32 +1,58 @@
 package day11
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type coord struct {
 	x, y int
 }
 
-func Process(lines []string) int {
-	matrix, galaxies := parseUniverse(lines)
+func Part1(lines []string) int {
+	galaxies := parseUniverse(lines, 2)
+
+	sum := 0
+	for i := 0; i < len(galaxies); i++ {
+		for j := i; j < len(galaxies); j++ {
+			a, b := galaxies[i], galaxies[j]
+			if a != b {
+				sum += manhattanDist(a, b)
+			}
+		}
+	}
 
 	fmt.Printf("\n")
 	for _, galaxy := range galaxies {
 		fmt.Printf("%+v\n", galaxy)
 	}
 
-	fmt.Printf("\n")
-	for _, bytes := range matrix {
-		fmt.Printf("%+v\n", string(bytes))
-	}
-	return 0
+	return sum
 }
 
-func parseUniverse(lines []string) ([][]byte, []coord) {
+func Part2(
+	lines []string,
+	expansion int,
+) int {
+	galaxies := parseUniverse(lines, expansion)
+
+	sum := 0
+	for i := 0; i < len(galaxies); i++ {
+		for j := i; j < len(galaxies); j++ {
+			a, b := galaxies[i], galaxies[j]
+			if a != b {
+				sum += manhattanDist(a, b)
+			}
+		}
+	}
+
+	return sum
+}
+
+func parseUniverse(
+	lines []string,
+	expand int,
+) []coord {
+	expand = expand - 1
 	var galaxies []coord
 	var matrix [][]byte
-	var columnsToInc []int
 	inc := 0
 	// parse rows and insert extra empty rows
 	for x, line := range lines {
@@ -35,22 +61,18 @@ func parseUniverse(lines []string) ([][]byte, []coord) {
 		nilCoord := coord{-1, -1}
 		galaxy := nilCoord
 		for y, c := range []byte(line) {
-			matrix[x+inc][y] = c
+			matrix[x][y] = c
 			if c == '#' {
 				isEmpty = false
 				galaxy = coord{x + inc, y}
+				galaxies = append(galaxies, galaxy)
 			}
 		}
 		if isEmpty {
-			slice := matrix[x+inc]
-			matrix = append(matrix, slice)
-			inc++
-		}
-		if galaxy != nilCoord {
-			galaxies = append(galaxies, galaxy)
+			inc += expand
 		}
 	}
-	inc = 0
+	var emptyColumns []int
 	skipNext := false
 	// find empty columns
 	for y := 0; y < len(matrix[0]); y++ {
@@ -66,31 +88,35 @@ func parseUniverse(lines []string) ([][]byte, []coord) {
 			}
 		}
 		if isEmpty {
-			for x := 0; x < len(matrix); x++ {
-				var list []byte
-				if y == len(matrix[x]) {
-					list = append(matrix[x], '.')
-				} else {
-					pre := matrix[x][:y+1]
-					post := matrix[x][y:]
-					list = append(pre, post...)
-
-					columnsToInc = append(columnsToInc, y)
-				}
-				list[y] = '.'
-				matrix[x] = list
-			}
-			for i, _ := range galaxies {
-				galaxy := galaxies[i]
-				if galaxy.y > y+1 {
-					galaxy.y += 1
-					galaxies[i] = galaxy
-				}
-			}
+			emptyColumns = append(emptyColumns, y)
 			skipNext = true
-			inc++
 		}
 	}
 
-	return matrix, galaxies
+	// expand y coords
+	for i, col := range emptyColumns {
+		for x, _ := range galaxies {
+			expandedCol := col + i*expand
+			if galaxies[x].y > expandedCol {
+				galaxies[x].y += expand
+			}
+		}
+	}
+
+	return galaxies
+}
+
+// Credits: https://en.wikipedia.org/wiki/Taxicab_geometry
+// NO hint this year? other than the not so obvious repeating down-right path from galaxy 5 to 9
+// Path of down then right from 5 to 9 would have been more obvious
+// Found this after going down the Dijkstra's algorithm route....no thanks
+func manhattanDist(a, b coord) int {
+	return abs(a.x-b.x) + abs(a.y-b.y)
+}
+
+func abs(i int) int {
+	if i < 0 {
+		return -1 * i
+	}
+	return i
 }
