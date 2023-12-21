@@ -7,24 +7,27 @@ import (
 )
 
 var cardMap = map[byte]int{
-	'A': 14,
-	'K': 13,
-	'Q': 12,
-	'J': 11,
-	'T': 10,
-	'9': 9,
-	'8': 8,
-	'7': 7,
-	'6': 6,
-	'5': 5,
-	'4': 4,
-	'3': 3,
 	'2': 2,
+	'3': 3,
+	'4': 4,
+	'5': 5,
+	'6': 6,
+	'7': 7,
+	'8': 8,
+	'9': 9,
+	'T': 10,
+	'J': 11,
+	'Q': 12,
+	'K': 13,
+	'A': 14,
 }
 
-func getCard(char byte, joker bool) int {
+func getCard(
+	char byte,
+	joker bool,
+) int {
 	if joker && char == 'J' {
-		return 1
+		return -1
 	}
 	return cardMap[char]
 }
@@ -35,13 +38,15 @@ type hand struct {
 	bet     int
 }
 
-const FIVE_OF_A_KIND = 6
-const FOUR_OF_A_KIND = 5
-const FULL_HOUSE = 4
-const THREE_OF_A_KIND = 3
-const TWO_PAIR = 2
-const ONE_PAIR = 1
-const HIGH_CARD = 0
+const (
+	HighCard = iota
+	OnePair
+	TwoPair
+	ThreeOfAKind
+	FullHouse
+	FourOfAKind
+	FiveOfAKind
+)
 
 func (h *hand) handType() int {
 	three := false
@@ -49,9 +54,9 @@ func (h *hand) handType() int {
 	for _, v := range h.cards {
 		switch v {
 		case 5:
-			return FIVE_OF_A_KIND
+			return FiveOfAKind
 		case 4:
-			return FOUR_OF_A_KIND
+			return FourOfAKind
 		case 3:
 			three = true
 		case 2:
@@ -60,17 +65,17 @@ func (h *hand) handType() int {
 	}
 	if three {
 		if pairCount > 0 {
-			return FULL_HOUSE
+			return FullHouse
 		}
-		return THREE_OF_A_KIND
+		return ThreeOfAKind
 	}
 	switch pairCount {
 	case 2:
-		return TWO_PAIR
+		return TwoPair
 	case 1:
-		return ONE_PAIR
+		return OnePair
 	default:
-		return HIGH_CARD
+		return HighCard
 	}
 }
 
@@ -125,7 +130,10 @@ func Part2(lines []string) int {
 	return calcWinnings(hands)
 }
 
-func sortHands(hands []hand, withJoker bool) {
+func sortHands(
+	hands []hand,
+	withJoker bool,
+) {
 	sort.SliceStable(hands, func(i, j int) bool {
 		hand1, hand2 := hands[i], hands[j]
 		type1, type2 := hand1.handType(), hand2.handType()
