@@ -4,12 +4,9 @@ import "fmt"
 
 func Process(lines []string) int {
 	var matrix [][]byte
-	inc, lineLength := 0, 0
+	inc := 0
 	// parse rows and insert extra empty rows
 	for x, line := range lines {
-		if lineLength == 0 {
-			lineLength = len(line)
-		}
 		matrix = append(matrix, make([]byte, len(line)))
 		isEmpty := true
 		for y, c := range []byte(line) {
@@ -24,9 +21,14 @@ func Process(lines []string) int {
 			inc++
 		}
 	}
-	var emptyColumns []int
+	inc = 0
+	skipNext := false
 	// find empty columns
 	for y := 0; y < len(matrix[0]); y++ {
+		if skipNext {
+			skipNext = false
+			continue
+		}
 		isEmpty := true
 		for x := 0; x < len(matrix); x++ {
 			c := matrix[x][y]
@@ -35,31 +37,28 @@ func Process(lines []string) int {
 			}
 		}
 		if isEmpty {
-			emptyColumns = append(emptyColumns, y)
-		}
-	}
+			for x := 0; x < len(matrix); x++ {
+				var list []byte
+				if y == len(matrix[x]) {
+					list = append(matrix[x], '.')
+				} else {
+					pre := matrix[x][:y+1]
+					post := matrix[x][y:]
+					list = append(pre, post...)
 
-	inc = 0
-	for _, y := range emptyColumns {
-		y = y + inc
-		for x := 0; x < len(matrix); x++ {
-			pre := matrix[x][:y+1]
-			post := matrix[x][y:]
-			list := append(pre, post...)
-			if y == len(matrix[x]) {
-				list = append(matrix[x], '.')
+				}
+				list[y] = '.'
+				matrix[x] = list
 			}
-			list[y] = '.'
-			matrix[x] = list
+			skipNext = true
+			inc++
 		}
-		inc++
 	}
 
 	for _, bytes := range matrix {
 		fmt.Printf("%+v\n", string(bytes))
 	}
 	fmt.Printf("%d\n", len(matrix))
-	fmt.Printf("%+v\n", emptyColumns)
 
 	return 0
 }
