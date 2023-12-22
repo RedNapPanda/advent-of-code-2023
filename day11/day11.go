@@ -27,10 +27,7 @@ func Part1(lines []string) int {
 	return sum
 }
 
-func Part2(
-	lines []string,
-	expansion int,
-) int {
+func Part2(lines []string, expansion int) int {
 	galaxies := parseUniverse(lines, expansion)
 
 	sum := 0
@@ -46,10 +43,7 @@ func Part2(
 	return sum
 }
 
-func parseUniverse(
-	lines []string,
-	expand int,
-) []coord {
+func parseUniverse(lines []string, expand int) []coord {
 	expand = expand - 1
 	var galaxies []coord
 	var matrix [][]byte
@@ -93,7 +87,7 @@ func parseUniverse(
 		}
 	}
 
-	// expand y coords
+	// expand y coords (x was done on creation, could also have been shifted here as well)
 	for i, col := range emptyColumns {
 		for x, _ := range galaxies {
 			expandedCol := col + i*expand

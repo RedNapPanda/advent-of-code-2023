@@ -20,7 +20,6 @@ var fCheck = func(tile, prev coord) bool {
 }
 
 func Process(lines []string) (int, int) {
-
 	var start coord
 	var tiles [][]byte
 	cleanTiles := make([][]byte, len(lines))
@@ -89,12 +88,7 @@ func Process(lines []string) (int, int) {
 	return (count - 1) / 2, area
 }
 
-func nextTile(
-	tiles [][]byte,
-	prev coord,
-	target coord,
-	count int,
-) (coord, coord, int, bool, bool) {
+func nextTile(tiles [][]byte, prev coord, target coord, count int, ) (coord, coord, int, bool, bool) {
 	next := target
 	b := tiles[target.x][target.y]
 
