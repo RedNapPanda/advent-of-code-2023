@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func GetInputData(day int) ([]string, error) {
@@ -23,4 +24,20 @@ func GetInputData(day int) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
+}
+
+func GetInputDataString(day int) (string, error) {
+	if day < 1 || day > 25 {
+		return "", fmt.Errorf("incorrect day or part number: day %d", day)
+	}
+	path := fmt.Sprintf("C:/Users/excel/Documents/projects/dedi-servers/home-dedi/go/advent-of-code/inputs/day%d.txt", day)
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	var bytes []byte
+	bytes, err = os.ReadFile(path)
+	return strings.ReplaceAll(string(bytes), "\r\n", "\n"), err
 }

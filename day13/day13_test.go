@@ -6,23 +6,21 @@ import (
 	"testing"
 )
 
-var example = []string{
-	"#.##..##.",
-	"..#.##.#.",
-	"##......#",
-	"##......#",
-	"..#.##.#.",
-	"..##..##.",
-	"#.#.##.#.",
-	"",
-	"#...##..#",
-	"#....#..#",
-	"..##..###",
-	"#####.##.",
-	"#####.##.",
-	"..##..###",
-	"#....#..#",
-}
+var example = `#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.
+
+#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`
 
 /*
 Goal to find the reflection points that falls within the body of the data points
@@ -42,14 +40,15 @@ Doesn't seem to mention multiple reflections..
     #.#.##.#.
     >>>>><<<<
     123456789
-     98765432
-*/
 
-// invertIndex
-// s := "12345678"
-// fmt.Println(s)
-// fmt.Printf("%c\n", s[0])
-// fmt.Printf("%c\n", s[len(s)-0-1])
+When parsing, convert '.' to 1 and '#' to 0 (or vice versa)
+For rows (columns is just rows transposed, but same checks)
+for i to grid X dim
+    Reverse slice of first i lines as upper mirror (to what it would look like mirrored on the lower half)
+    slice of remaining lines after upper
+    row count bounded to smallest set of rows
+    Check to see if both lists match, if so, i + 1 is the mirror line
+*/
 
 func TestPart1Example(t *testing.T) {
 	output := Process(example)
@@ -57,8 +56,8 @@ func TestPart1Example(t *testing.T) {
 }
 
 func TestPart1(t *testing.T) {
-	input, _ := aoc.GetInputData(13)
+	input, _ := aoc.GetInputDataString(13)
 	output := Process(input)
 
-	assert.Equal(t, 6949, output)
+	assert.Equal(t, 36015, output)
 }

@@ -89,7 +89,7 @@ func parseUniverse(lines []string, expand int) []coord {
 
 	// expand y coords (x was done on creation, could also have been shifted here as well)
 	for i, col := range emptyColumns {
-		for x, _ := range galaxies {
+		for x := range galaxies {
 			expandedCol := col + i*expand
 			if galaxies[x].y > expandedCol {
 				galaxies[x].y += expand
