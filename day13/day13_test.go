@@ -51,13 +51,25 @@ for i to grid X dim
 */
 
 func TestPart1Example(t *testing.T) {
-	output := Process(example)
+	output := Process(example, 1)
 	assert.Equal(t, 405, output)
 }
 
 func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputDataString(13)
-	output := Process(input)
+	output := Process(input, 1)
 
 	assert.Equal(t, 36015, output)
+}
+
+func TestPart2Example(t *testing.T) {
+	output := Process(example, 2)
+	assert.Equal(t, 400, output)
+}
+
+func TestPart2(t *testing.T) {
+	input, _ := aoc.GetInputDataString(13)
+	output := Process(input, 2)
+
+	assert.Equal(t, 35335, output)
 }

@@ -43,6 +43,9 @@ func SlicesEqual[T comparable](a, b []T) bool {
 	return true
 }
 
+// TransposeMatrix transposes a matrix, does not do any validations other than returning nil if either dimension is 0
+// assumes all rows are equal column length
+// TODO: Harden this to fail if matrix is not balanced?
 func TransposeMatrix[T any](matrix [][]T) [][]T {
 	x := len(matrix[0])
 	y := len(matrix)
@@ -55,9 +58,6 @@ func TransposeMatrix[T any](matrix [][]T) [][]T {
 	}
 	for i := 0; i < x; i++ {
 		for j := 0; j < y; j++ {
-			if len(matrix[j]) == 0 {
-				fmt.Printf("Matrix len is zero %d | %+v\n", j, matrix)
-			}
 			transposed[i][j] = matrix[j][i]
 		}
 	}

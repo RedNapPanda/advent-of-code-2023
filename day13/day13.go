@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Process(data string) int {
+func Process(data string, part int) int {
 	dataSets := strings.Split(strings.TrimSuffix(data, "\n"), "\n\n")
 	var grid [][]byte
 
@@ -20,7 +20,7 @@ func Process(data string) int {
 			}
 			i++
 		}
-		value += findMirror(grid)
+		value += findMirror(grid, part-1)
 		grid = [][]byte{}
 		gridCount++
 		i = 0
@@ -28,14 +28,14 @@ func Process(data string) int {
 	return value
 }
 
-func findMirror(grid [][]byte) int {
+func findMirror(grid [][]byte, smudges int) int {
 	if len(grid) == 0 {
 		return 0
 	}
 
 	mirrorCol, mirrorRow := 0, 0
 	// rows
-	for i := 0; i < len(grid); i++ {
+	for i := 0; i < len(grid)-1; i++ {
 		upper := make([][]byte, i+1)
 		copy(upper, grid[:i+1])
 		slices.Reverse(upper)
@@ -44,14 +44,21 @@ func findMirror(grid [][]byte) int {
 		upper = upper[:rows]
 		lower = lower[:rows]
 
-		matches := true
+		value := 0
+	rowMatching:
 		for x := 0; x < len(upper); x++ {
-			matches = aoc_util.SlicesEqual(upper[x], lower[x])
-			if !matches {
-				break
+			// matches = aoc_util.SlicesEqual(upper[x], lower[x]) // Part 1
+			// converted the function that checked for all equality to count for mismatches.  Breaks if > smudges
+			for y, v := range upper[x] {
+				if lower[x][y] != v {
+					value++
+					if value > smudges {
+						break rowMatching
+					}
+				}
 			}
 		}
-		if matches && i < len(grid)-1 {
+		if value == smudges {
 			mirrorRow = i + 1
 			break
 		}
@@ -60,7 +67,7 @@ func findMirror(grid [][]byte) int {
 	// TransposeMatrix by X, Y
 	transposed := aoc_util.TransposeMatrix(grid)
 	// columns
-	for i := 0; i < len(transposed); i++ {
+	for i := 0; i < len(transposed)-1; i++ {
 		upper := make([][]byte, i+1)
 		copy(upper, transposed[:i+1])
 		slices.Reverse(upper)
@@ -69,14 +76,20 @@ func findMirror(grid [][]byte) int {
 		upper = upper[:rows]
 		lower = lower[:rows]
 
-		matches := true
+		value := 0
+	colMatching:
 		for x := 0; x < len(upper); x++ {
-			matches = aoc_util.SlicesEqual(upper[x], lower[x])
-			if !matches {
-				break
+			// matches = aoc_util.SlicesEqual(upper[x], lower[x]) // Part 1
+			for y, v := range upper[x] {
+				if lower[x][y] != v {
+					value++
+					if value > smudges {
+						break colMatching
+					}
+				}
 			}
 		}
-		if matches && i < len(transposed)-1 {
+		if value == smudges {
 			mirrorCol = i + 1
 			break
 		}
