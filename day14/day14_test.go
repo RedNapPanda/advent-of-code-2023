@@ -3,6 +3,7 @@ package day14
 import (
 	aoc "aoc"
 	"aoc/aoc_util"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -55,4 +56,14 @@ func TestPart2(t *testing.T) {
 	output := Part2(input)
 
 	assert.Equal(t, 113078, output)
+}
+
+func TestPart12(t *testing.T) {
+	for _, s := range strings.Split(example, "\n") {
+		fmt.Printf("%s\n", s)
+		bytes := []byte(s)
+		// shiftLeft(bytes)
+		shiftRight(bytes)
+		fmt.Printf("%s\n\n", string(bytes))
+	}
 }

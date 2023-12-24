@@ -81,8 +81,14 @@ func Part2(lines []string) int {
 		// for i := 0; i < len(grid[0]); i++ {
 		//
 		// }
+		aoc_util.PrintMatrix(grid)
+		fmt.Printf("Transpose\n")
 		aoc_util.TransposeMatrix(grid)
-		shiftGrid(grid)
+		aoc_util.PrintMatrix(grid)
+		fmt.Printf("Shift\n")
+		shiftGrid(grid, true)
+		// shiftGrid(grid, false)
+		aoc_util.PrintMatrix(grid)
 
 		// // technically a flip
 		// aoc_util.RotateMatrixCW(grid)
@@ -138,51 +144,18 @@ type cacheData struct {
 
 var cache = make(map[string]cacheData)
 
-func shiftGrid(grid [][]byte) int {
+func shiftGrid(grid [][]byte, left bool) int {
 	cache = make(map[string]cacheData)
 	value := 0
 
-	// This assumes the grid is shifting to the left
-	for y := 0; y < len(grid); y++ {
-		row := grid[y]
-		fmt.Printf("   pre : %s\n", string(row))
-		shiftLeft(row)
-		fmt.Printf("post L : %s\n", string(row))
-		shiftRight(row)
-		fmt.Printf("post R : %s\n", string(row))
-		// need to do this backwards...
-		var rocks []int
-		for x := len(row) - 1; x >= 0; x-- {
-			for i := x; i >= 0; i-- {
-				if c, ok := cache[string(row)]; ok {
-					grid[y] = []byte(c.transformed)
-					value += c.value
-					continue
-				}
-				switch row[i] {
-				case '#':
-					x = i // shift since we found the prev rock
-					if len(rocks) > 0 {
-						v := sumGroup(len(row), x, len(rocks))
-						for n, rock := range rocks {
-							if row[x+n+1] == '.' {
-								row[x+n+1] = 'O'
-								row[rock] = '.'
-							}
-						}
-						value += v
-						rocks = nil
-					}
-					break
-				case 'O':
-					rocks = append(rocks, i)
-				}
-			}
+	for _, bytes := range grid {
+		fmt.Printf("line pre : %s\n", string(bytes))
+		if left {
+			shiftLeft(bytes)
+		} else {
+			shiftRight(bytes)
 		}
-		if len(rocks) > 0 {
-			value += sumGroup(len(row), 0, len(rocks))
-			rocks = nil
-		}
+		fmt.Printf("line post: %s\n", string(bytes))
 	}
 
 	return value
@@ -203,12 +176,17 @@ func shiftLeft(bytes []byte) {
 		switch bytes[i] {
 		case '#':
 			if len(rocks) > 0 {
-				shiftedRocks := 0
-				for j := i; j < len(bytes) && shiftedRocks < len(rocks); j++ {
-					if bytes[j+1] == '.' {
+				for j := i; j < len(bytes) && len(rocks) > 0; j++ {
+					rockIndex := rocks[len(rocks)-1]
+					switch bytes[j+1] {
+					case 'O':
+						if rockIndex == j+1 {
+							rocks = rocks[:len(rocks)-1]
+						}
+					case '.':
 						bytes[j+1] = 'O'
-						bytes[rocks[len(rocks)-shiftedRocks-1]] = '.'
-						shiftedRocks++
+						bytes[rockIndex] = '.'
+						rocks = rocks[:len(rocks)-1]
 					}
 				}
 				rocks = nil
@@ -221,18 +199,17 @@ func shiftLeft(bytes []byte) {
 	}
 
 	if len(rocks) > 0 {
-		shiftedRocks := 0
-		for j := 0; j < lastRock && shiftedRocks < len(rocks); j++ {
-			rockIndex := rocks[len(rocks)-shiftedRocks-1]
+		for j := 0; j < lastRock && len(rocks) > 0; j++ {
+			rockIndex := rocks[len(rocks)-1]
 			switch bytes[j] {
 			case 'O':
 				if rockIndex == j {
-					shiftedRocks++
+					rocks = rocks[:len(rocks)-1]
 				}
 			case '.':
 				bytes[j] = 'O'
 				bytes[rockIndex] = '.'
-				shiftedRocks++
+				rocks = rocks[:len(rocks)-1]
 			}
 		}
 		rocks = nil

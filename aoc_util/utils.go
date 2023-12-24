@@ -31,6 +31,17 @@ func Repeat(orig, sep string, times int) string {
 	return result
 }
 
+func JoinSlices[T any](separator T, slices ...[]T) []T {
+	var newSlice []T
+	for i, slice := range slices {
+		newSlice = append(newSlice, slice...)
+		if i < len(slices)-1 {
+			newSlice = append(newSlice, separator)
+		}
+	}
+	return newSlice
+}
+
 // SlicesEqual checks that the slices are the same length and the elements are in the same order
 func SlicesEqual[T comparable](a, b []T) bool {
 	if len(a) != len(b) {
