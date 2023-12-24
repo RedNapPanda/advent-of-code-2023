@@ -57,11 +57,7 @@ func Part2(lines []string, iterations int) int {
 		}
 	}
 
-	fmt.Printf("\n")
-	aoc_util.PrintMatrix(grid)
 	cycleTilts(grid, iterations)
-	fmt.Printf("\n")
-	aoc_util.PrintMatrix(grid)
 
 	value = 0
 	for n := 0; n < len(grid); n++ {
@@ -87,7 +83,7 @@ func cycleTilts(grid [][]byte, iterations int) {
 	if iterations == 0 {
 		return
 	}
-	cycleLen, i := 1, 0
+	cycleLen, i := 0, 0
 	// key := keyGrid(grid)
 	var key string
 	cycle := func() {
