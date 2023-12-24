@@ -39,5 +39,8 @@ func GetInputDataString(day int) (string, error) {
 
 	var bytes []byte
 	bytes, err = os.ReadFile(path)
-	return strings.ReplaceAll(string(bytes), "\r\n", "\n"), err
+	str := string(bytes)
+	str = strings.ReplaceAll(str, "\r\n", "\n")
+	str = strings.TrimSuffix(str, "\n")
+	return str, err
 }

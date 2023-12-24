@@ -63,3 +63,16 @@ func TransposeMatrix[T any](matrix [][]T) [][]T {
 	}
 	return transposed
 }
+
+func PrintMatrix[T any](matrix [][]T) {
+	for i := 0; i < len(matrix); i++ {
+		fmt.Printf("[")
+		for j := 0; j < len(matrix[i]); j++ {
+			fmt.Printf("%c", matrix[i][j])
+			if j < len(matrix[i])-1 {
+				fmt.Printf(" ")
+			}
+		}
+		fmt.Printf("]\n")
+	}
+}
