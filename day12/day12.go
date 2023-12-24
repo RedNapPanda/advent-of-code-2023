@@ -100,8 +100,8 @@ The transitions are:
 
 In the end, the answer is f (lastPos, numberOfGroups, 0). (Add a trailing . to the string for convenience to avoid cases.)
 
-dp[j][charIndex]
-dp[j][charIndex] =
+dp[y][charIndex]
+dp[y][charIndex] =
 
 	dp[x][y] =
 	match string[y] with
@@ -168,8 +168,8 @@ func Process(lines []string) int {
 				Does the same as filling previous RTL with 1s till '#'
 
 			Since you only ever need either data from:
-				current groupState: dp[i+1][j]
-				prev groupState (next group in the group listing): dp[i - 1][j + current_group + 1]
+				current groupState: dp[x+1][y]
+				prev groupState (next group in the group listing): dp[x - 1][y + current_group + 1]
 		*/
 		prev := make([]int, charLen)
 		current := make([]int, charLen)
@@ -222,8 +222,8 @@ func Process(lines []string) int {
 		// handleBroken := func(slice []byte, x, y, brokenGroup int) int {
 		// 	valid := len(slice) > brokenGroup
 		// 	// check slice[:brokenGroup] does not contain a working spring '.'
-		// 	for i := 0; i < min(len(slice), brokenGroup); i++ {
-		// 		if slice[i] == '.' {
+		// 	for x := 0; x < min(len(slice), brokenGroup); x++ {
+		// 		if slice[x] == '.' {
 		// 			valid = false
 		// 			break
 		// 		}
@@ -270,8 +270,8 @@ func isBrokenGroup(slice []byte, start, end int) bool {
 	if end > sliceLen {
 		return false
 	}
-	for i := start; i < end; i++ {
-		if slice[i] == '.' {
+	for x := start; x < end; x++ {
+		if slice[x] == '.' {
 			return false
 		}
 	}
@@ -282,9 +282,9 @@ func parseLine(line string) (string, []int) {
 	split := strings.Split(line, " ")
 	groupStrs := strings.Split(split[1], ",")
 	groups := make([]int, len(groupStrs))
-	for i, s := range groupStrs {
+	for x, s := range groupStrs {
 		digit, _ := strconv.Atoi(s)
-		groups[i] = digit
+		groups[x] = digit
 	}
 	return split[0], groups
 }

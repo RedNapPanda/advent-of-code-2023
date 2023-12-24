@@ -43,11 +43,11 @@ Doesn't seem to mention multiple reflections..
 
 When parsing, convert '.' to 1 and '#' to 0 (or vice versa)
 For rows (columns is just rows transposed, but same checks)
-for i to grid X dim
-    Reverse slice of first i lines as upper mirror (to what it would look like mirrored on the lower half)
+for x to grid X dim
+    Reverse slice of first x lines as upper mirror (to what it would look like mirrored on the lower half)
     slice of remaining lines after upper
     row count bounded to smallest set of rows
-    Check to see if both lists match, if so, i + 1 is the mirror line
+    Check to see if both lists match, if so, x + 1 is the mirror line
 */
 
 func TestPart1Example(t *testing.T) {
