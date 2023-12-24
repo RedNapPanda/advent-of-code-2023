@@ -24,7 +24,7 @@ func Part1(lines []string) int {
 	aoc_util.TransposeMatrix(grid)
 	value = 0
 	for _, bytes := range grid {
-		value += scoreTiltNorthWithoutShift(bytes, -1)
+		value += scoreTiltWestWithoutShift(bytes, -1)
 	}
 	fmt.Printf("Recursive Value: %d\n", value)
 	aoc_util.TransposeMatrix(grid)
@@ -42,9 +42,49 @@ func Part1(lines []string) int {
 		}
 		value += count * (len(grid) - n)
 	}
-	fmt.Printf("T-Shifted Value: %d\n", value)
+	fmt.Printf("Transpose Shifted Value: %d\n", value)
 
 	return value
+}
+
+/*
+value from index i with n rock, 2 rocks, pos 1 aka start, rocks start with index 0
+11 - i - n
+11 - 1 - 0 => 10 + 0 => 10
+11 - 1 - 1 => 11 - 2 => 9
+Starts from 0, counts O rocks and finds first # rock.
+
+	sum = calculates the value of the n rocks with that lastRock index
+	returns sum + scoreTiltWestWithoutShift, new lastRock index
+
+This doesn't actually shift anything
+for n rock
+
+	sum += 11 - i - n - 1
+*/
+func scoreTiltWestWithoutShift(slice []byte, lastRock int) int {
+	count, sum := 0, 0
+	for i := lastRock + 1; i < len(slice); i++ {
+		switch slice[i] {
+		case '#': // matches group slice[:]
+			if count > 0 {
+				sum += sumGroup(len(slice), lastRock, count)
+			}
+			return sum + scoreTiltWestWithoutShift(slice, i)
+		case 'O':
+			count++
+		}
+	}
+	// handle in case it doesn't end with a rock
+	return sumGroup(len(slice), lastRock, count)
+}
+
+func sumGroup(sliceLen, lastRock, count int) int {
+	i := 0
+	for n := 0; n < count; n++ {
+		i += sliceLen - lastRock - n - 1
+	}
+	return i
 }
 
 func Part2(lines []string, iterations int) int {
@@ -120,46 +160,6 @@ func hashGrid(grid [][]byte) string {
 	}
 	sha := sha256.Sum256(hashBytes)
 	return string(sha[:])
-}
-
-/*
-value from index i with n rock, 2 rocks, pos 1 aka start, rocks start with index 0
-11 - i - n
-11 - 1 - 0 => 10 + 0 => 10
-11 - 1 - 1 => 11 - 2 => 9
-Starts from 0, counts O rocks and finds first # rock.
-
-	sum = calculates the value of the n rocks with that lastRock index
-	returns sum + scoreTiltNorthWithoutShift, new lastRock index
-
-This doesn't actually shift anything
-for n rock
-
-	sum += 11 - i - n - 1
-*/
-func scoreTiltNorthWithoutShift(slice []byte, lastRock int) int {
-	count, sum := 0, 0
-	for i := lastRock + 1; i < len(slice); i++ {
-		switch slice[i] {
-		case '#': // matches group slice[:]
-			if count > 0 {
-				sum += sumGroup(len(slice), lastRock, count)
-			}
-			return sum + scoreTiltNorthWithoutShift(slice, i)
-		case 'O':
-			count++
-		}
-	}
-	// handle in case it doesn't end with a rock
-	return sumGroup(len(slice), lastRock, count)
-}
-
-func sumGroup(sliceLen, lastRock, count int) int {
-	i := 0
-	for n := 0; n < count; n++ {
-		i += sliceLen - lastRock - n - 1
-	}
-	return i
 }
 
 func shiftNorth(grid [][]byte) {
