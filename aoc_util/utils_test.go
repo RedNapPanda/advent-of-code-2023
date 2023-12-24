@@ -22,7 +22,7 @@ func TestTransposeMatrix(t *testing.T) {
 		{1, 3},
 		{2, 4},
 	}
-	assert.Equal(t, TransposeMatrix(matrix), expected)
+	assert.Equal(t, expected, TransposeNewMatrix(matrix))
 	matrix = [][]int{
 		{1, 2, 3},
 		{4, 5, 6},
@@ -33,7 +33,7 @@ func TestTransposeMatrix(t *testing.T) {
 		{2, 5, 8},
 		{3, 6, 9},
 	}
-	assert.Equal(t, TransposeMatrix(matrix), expected)
+	assert.Equal(t, expected, TransposeNewMatrix(matrix))
 	matrix = [][]int{
 		{1, 2, 3, 4},
 		{5, 6, 7, 8},
@@ -46,7 +46,9 @@ func TestTransposeMatrix(t *testing.T) {
 		{3, 7, 11, 15},
 		{4, 8, 12, 16},
 	}
-	assert.Equal(t, TransposeMatrix(matrix), expected)
+	assert.Equal(t, TransposeNewMatrix(matrix), expected)
+	TransposeMatrix(matrix)
+	assert.Equal(t, expected, matrix)
 }
 
 // TODO: Proper assertions
@@ -58,8 +60,18 @@ func TestRotateMatrixCW(t *testing.T) {
 	}
 	fmt.Printf("Original\n")
 	PrintMatrix(matrix)
+	fmt.Printf("Flipped / RotateNewMatrixCW\n")
+	matrix = RotateNewMatrixCW(matrix)
+	PrintMatrix(matrix)
+	matrix = [][]int{
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9},
+	}
+	fmt.Printf("Original\n")
+	PrintMatrix(matrix)
 	fmt.Printf("Flipped / RotateMatrixCW\n")
-	matrix = RotateMatrixCW(matrix)
+	RotateMatrixCW(matrix)
 	PrintMatrix(matrix)
 }
 
@@ -73,6 +85,16 @@ func TestRotateMatrixCCW(t *testing.T) {
 	fmt.Printf("Original\n")
 	PrintMatrix(matrix)
 	fmt.Printf("Rotated CCW\n")
-	matrix = RotateMatrixCCW(matrix)
+	matrix = RotateNewMatrixCCW(matrix)
+	PrintMatrix(matrix)
+	matrix = [][]int{
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9},
+	}
+	fmt.Printf("Original\n")
+	PrintMatrix(matrix)
+	fmt.Printf("Flipped / RotateMatrixCCW\n")
+	RotateMatrixCCW(matrix)
 	PrintMatrix(matrix)
 }

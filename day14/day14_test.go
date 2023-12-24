@@ -2,6 +2,7 @@ package day14
 
 import (
 	aoc "aoc"
+	"aoc/aoc_util"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -32,13 +33,26 @@ O.#..O.#.#
 #OO..#....
 */
 func TestPart1Example(t *testing.T) {
-	output := Process(strings.Split(example, "\n"))
+	output := Part1(strings.Split(example, "\n"))
 	assert.Equal(t, 136, output)
 }
 
 func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputData(14)
-	output := Process(input)
+	output := Part1(input)
+
+	assert.Equal(t, 113078, output)
+}
+
+func TestPart2Example(t *testing.T) {
+	defer aoc_util.Timer("example2")()
+	output := Part2(strings.Split(example, "\n"))
+	assert.Equal(t, 64, output)
+}
+
+func TestPart2(t *testing.T) {
+	input, _ := aoc.GetInputData(14)
+	output := Part2(input)
 
 	assert.Equal(t, 113078, output)
 }

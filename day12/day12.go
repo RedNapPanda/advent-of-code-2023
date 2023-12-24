@@ -168,8 +168,8 @@ func Process(lines []string) int {
 				Does the same as filling previous RTL with 1s till '#'
 
 			Since you only ever need either data from:
-				current groupState: dp[x+1][y]
-				prev groupState (next group in the group listing): dp[x - 1][y + current_group + 1]
+				current groupState: dp[y+1][y]
+				prev groupState (next group in the group listing): dp[y - 1][y + current_group + 1]
 		*/
 		prev := make([]int, charLen)
 		current := make([]int, charLen)
@@ -219,11 +219,11 @@ func Process(lines []string) int {
 		}
 
 		// handleBroken used for checking broken spring group matches: ['#', '?'] prefix substring chars[y:], group size to check
-		// handleBroken := func(slice []byte, x, y, brokenGroup int) int {
+		// handleBroken := func(slice []byte, y, y, brokenGroup int) int {
 		// 	valid := len(slice) > brokenGroup
 		// 	// check slice[:brokenGroup] does not contain a working spring '.'
-		// 	for x := 0; x < min(len(slice), brokenGroup); x++ {
-		// 		if slice[x] == '.' {
+		// 	for y := 0; y < min(len(slice), brokenGroup); y++ {
+		// 		if slice[y] == '.' {
 		// 			valid = false
 		// 			break
 		// 		}
@@ -246,15 +246,15 @@ func Process(lines []string) int {
 		// 	return 0
 		// }
 
-		for x := groupLen - 1; x >= 0; x-- {
-			for y := charLen - 2; y >= 0; y-- { // compute matches for groups from end to beginning
-				switch chars[y] {
+		for y := groupLen - 1; y >= 0; y-- {
+			for x := charLen - 2; x >= 0; x-- { // compute matches for groups from end to beginning
+				switch chars[x] {
 				case '.':
-					current[y] = current[y+1] // working so is the value of the f(substring chars[y+1:])
+					current[x] = current[x+1] // working so is the value of the f(substring chars[x+1:])
 				case '#':
-					current[y] = handleBroken(x, y) // see @handleBroken
+					current[x] = handleBroken(y, x) // see @handleBroken
 				case '?':
-					current[y] = current[y+1] + handleBroken(x, y) // working or broken, so sum of both states
+					current[x] = current[x+1] + handleBroken(y, x) // working or broken, so sum of both states
 				}
 			}
 			prev = current

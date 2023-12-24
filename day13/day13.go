@@ -44,11 +44,11 @@ func findMirror(grid [][]byte, smudges int) int {
 
 		value := 0
 	rowMatching:
-		for x := 0; x < len(upper); x++ {
-			// matches = aoc_util.SlicesEqual(upper[x], lower[x]) // Part 1
+		for y := 0; y < len(upper); y++ {
+			// matches = aoc_util.SlicesEqual(upper[y], lower[y]) // Part 1
 			// converted the function that checked for all equality to count for mismatches.  Breaks if > smudges
-			for y, v := range upper[x] {
-				if lower[x][y] != v {
+			for x, v := range upper[y] {
+				if lower[y][x] != v {
 					value++
 					if value > smudges {
 						break rowMatching
@@ -62,8 +62,8 @@ func findMirror(grid [][]byte, smudges int) int {
 		}
 	}
 
-	// TransposeMatrix by X, Y
-	transposed := aoc_util.TransposeMatrix(grid)
+	// TransposeNewMatrix by X, Y
+	transposed := aoc_util.TransposeNewMatrix(grid)
 	// columns
 	for i := 0; i < len(transposed)-1; i++ {
 		upper := transposed[:i+1]
@@ -74,10 +74,10 @@ func findMirror(grid [][]byte, smudges int) int {
 
 		value := 0
 	colMatching:
-		for x := 0; x < len(upper); x++ {
-			// matches = aoc_util.SlicesEqual(upper[x], lower[x]) // Part 1
-			for y, v := range upper[len(upper)-x-1] {
-				if lower[x][y] != v {
+		for y := 0; y < len(upper); y++ {
+			// matches = aoc_util.SlicesEqual(upper[y], lower[y]) // Part 1
+			for x, v := range upper[len(upper)-y-1] {
+				if lower[y][x] != v {
 					value++
 					if value > smudges {
 						break colMatching

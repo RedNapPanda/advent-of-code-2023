@@ -2,6 +2,7 @@ package aoc_util
 
 import (
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -43,15 +44,72 @@ func SlicesEqual[T comparable](a, b []T) bool {
 	return true
 }
 
+func FlipMatrix[T any](matrix [][]T, horizontal bool) {
+	if !horizontal {
+		slices.Reverse(matrix)
+	} else {
+		for i, _ := range matrix {
+			slices.Reverse(matrix[i])
+		}
+	}
+}
+
+func RotateMatrixCW[T any](matrix [][]T) {
+	m := len(matrix[0]) - 1 // col
+	// split matrix into 4 squares
+	for y := 0; y < (m+1)/2; y++ {
+		for x := y; x < m-y; x++ {
+			temp := matrix[y][x]
+			// shift bottom left up
+			matrix[y][x] = matrix[m-x][y]
+			// shift bottom right left
+			matrix[m-x][y] = matrix[m-y][m-x]
+			// shift top right down
+			matrix[m-y][m-x] = matrix[x][m-y]
+			// shift top left right
+			matrix[x][m-y] = temp
+		}
+	}
+}
+
+func RotateMatrixCCW[T any](matrix [][]T) {
+	m := len(matrix[0]) - 1 // col
+	// split matrix into 4 squares
+	for y := 0; y < (m+1)/2; y++ {
+		for x := y; x < m-y; x++ {
+			temp := matrix[x][y]
+			// shift top right left
+			matrix[x][y] = matrix[y][m-x]
+			// shift bottom right up
+			matrix[y][m-x] = matrix[m-x][m-y]
+			// shift bottom left right
+			matrix[m-x][m-y] = matrix[m-y][x]
+			// shift top left down
+			matrix[m-y][x] = temp
+		}
+	}
+}
+
+func TransposeMatrix[T any](matrix [][]T) {
+	x := len(matrix)
+	for i := 0; i < x; i++ {
+		for j := i + 1; j < x; j++ {
+			temp := matrix[i][j]
+			matrix[i][j] = matrix[j][i]
+			matrix[j][i] = temp
+		}
+	}
+}
+
 /*
-TransposeMatrix
+TransposeNewMatrix
 
 	transposes a matrix
 	does not do any validations
 	assumes all rows are equal column length
 	TODO: Harden this to fail if matrix is not balanced?
 */
-func TransposeMatrix[T any](matrix [][]T) [][]T {
+func TransposeNewMatrix[T any](matrix [][]T) [][]T {
 	x := len(matrix[0])
 	y := len(matrix)
 	newMatrix := make([][]T, x)
@@ -67,19 +125,19 @@ func TransposeMatrix[T any](matrix [][]T) [][]T {
 }
 
 /*
-RotateMatrixCW
+RotateNewMatrixCW
 
 	Previously was: flips a matrix via transpose, then reversing each row
 	does not do any validations
 	assumes all rows are equal column length
 	TODO: Harden this to fail if matrix is not balanced?
 */
-func RotateMatrixCW[T any](matrix [][]T) [][]T {
+func RotateNewMatrixCW[T any](matrix [][]T) [][]T {
 	x := len(matrix)    // row
 	y := len(matrix[0]) // col
-	newMatrix := make([][]T, x)
+	newMatrix := make([][]T, y)
 	for j := 0; j < y; j++ {
-		col := make([]T, y)
+		col := make([]T, x)
 		for i := x - 1; i >= 0; i-- {
 			// insert from bottom to top
 			col[x-i-1] = matrix[i][j]
@@ -90,13 +148,13 @@ func RotateMatrixCW[T any](matrix [][]T) [][]T {
 }
 
 /*
-RotateMatrixCCW
+RotateNewMatrixCCW
 
 	does not do any validations
 	assumes all rows are equal column length
 	TODO: Harden this to fail if matrix is not balanced?
 */
-func RotateMatrixCCW[T any](matrix [][]T) [][]T {
+func RotateNewMatrixCCW[T any](matrix [][]T) [][]T {
 	x := len(matrix[0])
 	y := len(matrix)
 	newMatrix := make([][]T, x)
