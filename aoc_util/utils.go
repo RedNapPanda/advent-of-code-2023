@@ -180,6 +180,19 @@ func RotateNewMatrixCCW[T any](matrix [][]T) [][]T {
 	return newMatrix
 }
 
+func CopyMatrix[T any](matrix [][]T) [][]T {
+	x := len(matrix[0])
+	y := len(matrix)
+	newMatrix := make([][]T, y)
+	for i := 0; i < y; i++ {
+		newMatrix[i] = make([]T, x)
+		for j := 0; j < x; j++ {
+			newMatrix[i][j] = matrix[i][j]
+		}
+	}
+	return newMatrix
+}
+
 func PrintMatrix[T any](matrix [][]T) {
 	for i := 0; i < len(matrix); i++ {
 		fmt.Printf("[")
