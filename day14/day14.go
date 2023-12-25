@@ -7,7 +7,6 @@ import (
 )
 
 var cache = make(map[string]int)
-var keyBytes []byte
 var hashBytes []byte
 
 func Part1(lines []string) int {

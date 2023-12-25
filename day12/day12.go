@@ -147,7 +147,7 @@ backtrack
 [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]: 1,3,1,6
 */
 func Process(lines []string) int {
-	result := int(0)
+	var result = int(0)
 	for _, line := range lines {
 		unfixedRecord, groups := parseLine(line)
 		chars := []byte(unfixedRecord)

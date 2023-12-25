@@ -59,7 +59,7 @@ func FlipMatrix[T any](matrix [][]T, horizontal bool) {
 	if !horizontal {
 		slices.Reverse(matrix)
 	} else {
-		for i, _ := range matrix {
+		for i := range matrix {
 			slices.Reverse(matrix[i])
 		}
 	}

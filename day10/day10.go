@@ -1,26 +1,24 @@
 package day10
 
-type coord struct {
-	x, y int
-}
+import "aoc/aoc_util"
 
-var pipeCheck = func(tile, prev coord) bool { return tile.y == prev.y }
-var dashCheck = func(tile, prev coord) bool { return tile.x == prev.x }
-var lCheck = func(tile, prev coord) bool {
-	return (tile.x > prev.x && tile.y == prev.y) || (tile.x == prev.x && tile.y < prev.y)
+var pipeCheck = func(tile, prev aoc_util.Coordinate) bool { return tile.Y == prev.Y }
+var dashCheck = func(tile, prev aoc_util.Coordinate) bool { return tile.X == prev.X }
+var lCheck = func(tile, prev aoc_util.Coordinate) bool {
+	return (tile.X > prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y < prev.Y)
 }
-var jCheck = func(tile, prev coord) bool {
-	return (tile.x > prev.x && tile.y == prev.y) || (tile.x == prev.x && tile.y > prev.y)
+var jCheck = func(tile, prev aoc_util.Coordinate) bool {
+	return (tile.X > prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y > prev.Y)
 }
-var sevenCheck = func(tile, prev coord) bool {
-	return (tile.x < prev.x && tile.y == prev.y) || (tile.x == prev.x && tile.y > prev.y)
+var sevenCheck = func(tile, prev aoc_util.Coordinate) bool {
+	return (tile.X < prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y > prev.Y)
 }
-var fCheck = func(tile, prev coord) bool {
-	return (tile.x < prev.x && tile.y == prev.y) || (tile.x == prev.x && tile.y < prev.y)
+var fCheck = func(tile, prev aoc_util.Coordinate) bool {
+	return (tile.X < prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y < prev.Y)
 }
 
 func Process(lines []string) (int, int) {
-	var start coord
+	var start aoc_util.Coordinate
 	var tiles [][]byte
 	cleanTiles := make([][]byte, len(lines))
 	for x, line := range lines {
@@ -29,39 +27,39 @@ func Process(lines []string) (int, int) {
 
 		for y := 0; y < len(bytes); y++ {
 			if bytes[y] == 'S' {
-				start = coord{x, y}
+				start = aoc_util.Coordinate{X: x, Y: y}
 			}
 		}
 		cleanTiles[x] = make([]byte, len(line))
 	}
-	x1 := max(0, start.x-1)
-	y1 := max(0, start.y-1)
-	x2 := min(len(tiles), start.x+1)
-	y2 := min(len(tiles[start.x]), start.y+1) // data assumption that all rows are the same length
+	x1 := max(0, start.X-1)
+	y1 := max(0, start.Y-1)
+	x2 := min(len(tiles), start.X+1)
+	y2 := min(len(tiles[start.X]), start.Y+1) // data assumption that all rows are the same length
 
-	var checks []coord
-	if start.x-1 >= 0 {
-		checks = append(checks, coord{x1, start.y})
+	var checks []aoc_util.Coordinate
+	if start.X-1 >= 0 {
+		checks = append(checks, aoc_util.Coordinate{X: x1, Y: start.Y})
 	}
-	if start.y-1 >= 0 {
-		checks = append(checks, coord{start.x, y1})
+	if start.Y-1 >= 0 {
+		checks = append(checks, aoc_util.Coordinate{X: start.X, Y: y1})
 	}
-	if start.x+1 <= len(tiles) {
-		checks = append(checks, coord{x2, start.y})
+	if start.X+1 <= len(tiles) {
+		checks = append(checks, aoc_util.Coordinate{X: x2, Y: start.Y})
 	}
-	if start.y+1 <= len(tiles[start.x]) {
-		checks = append(checks, coord{start.x, y2})
+	if start.Y+1 <= len(tiles[start.X]) {
+		checks = append(checks, aoc_util.Coordinate{X: start.X, Y: y2})
 	}
 
 	prev := start
-	var next coord
+	var next aoc_util.Coordinate
 	count := 1
 	for _, tile := range checks {
 		if p, _, c, ok, _ := nextTile(tiles, start, tile, count); ok {
 			next = p
 			count = c
-			cleanTiles[prev.x][prev.y] = tiles[prev.x][prev.y]
-			cleanTiles[next.x][next.y] = tiles[next.x][next.y]
+			cleanTiles[prev.X][prev.Y] = tiles[prev.X][prev.Y]
+			cleanTiles[next.X][next.Y] = tiles[next.X][next.Y]
 			break
 		}
 	}
@@ -69,7 +67,7 @@ func Process(lines []string) (int, int) {
 	finished := false
 	for !finished {
 		prev, next, count, _, finished = nextTile(tiles, prev, next, count)
-		cleanTiles[next.x][next.y] = tiles[next.x][next.y]
+		cleanTiles[next.X][next.Y] = tiles[next.X][next.Y]
 	}
 
 	area := 0
@@ -88,52 +86,52 @@ func Process(lines []string) (int, int) {
 	return (count - 1) / 2, area
 }
 
-func nextTile(tiles [][]byte, prev coord, target coord, count int, ) (coord, coord, int, bool, bool) {
+func nextTile(tiles [][]byte, prev aoc_util.Coordinate, target aoc_util.Coordinate, count int) (aoc_util.Coordinate, aoc_util.Coordinate, int, bool, bool) {
 	next := target
-	b := tiles[target.x][target.y]
+	b := tiles[target.X][target.Y]
 
-	x, y := target.x, target.y
+	x, y := target.X, target.Y
 	switch {
 	case b == '|' && pipeCheck(target, prev):
-		if target.x > prev.x {
-			x = target.x + 1
+		if target.X > prev.X {
+			x = target.X + 1
 		} else {
-			x = target.x - 1
+			x = target.X - 1
 		}
 	case b == '-' && dashCheck(target, prev):
-		if target.y > prev.y {
-			y = target.y + 1
+		if target.Y > prev.Y {
+			y = target.Y + 1
 		} else {
-			y = target.y - 1
+			y = target.Y - 1
 		}
 	case b == 'L' && lCheck(target, prev):
-		if target.x > prev.x && target.y == prev.y {
-			y = target.y + 1
+		if target.X > prev.X && target.Y == prev.Y {
+			y = target.Y + 1
 		} else {
-			x = target.x - 1
+			x = target.X - 1
 		}
 	case b == 'J' && jCheck(target, prev):
-		if target.x > prev.x && target.y == prev.y {
-			y = target.y - 1
+		if target.X > prev.X && target.Y == prev.Y {
+			y = target.Y - 1
 		} else {
-			x = target.x - 1
+			x = target.X - 1
 		}
 	case b == '7' && sevenCheck(target, prev):
-		if target.x < prev.x && target.y == prev.y {
-			y = target.y - 1
+		if target.X < prev.X && target.Y == prev.Y {
+			y = target.Y - 1
 		} else {
-			x = target.x + 1
+			x = target.X + 1
 		}
 	case b == 'F' && fCheck(target, prev):
-		if target.x < prev.x && target.y == prev.y {
-			y = target.y + 1
+		if target.X < prev.X && target.Y == prev.Y {
+			y = target.Y + 1
 		} else {
-			x = target.x + 1
+			x = target.X + 1
 		}
 	case b == '.':
 		return prev, target, count, false, false
 	}
-	next = coord{x, y}
+	next = aoc_util.Coordinate{X: x, Y: y}
 	notTarget := next != target
 	if notTarget {
 		count++

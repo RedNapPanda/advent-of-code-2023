@@ -3,8 +3,21 @@ package aoc_util
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"testing"
 )
+
+func TestSa(t *testing.T) {
+	b := byte(0)
+	b |= 1 << 4
+	b |= 2 << 4
+	b |= 4 << 4
+	b |= 8 << 4
+	fmt.Printf("%08b\n", b)
+	fmt.Printf("%08b\n", b>>4)
+	fmt.Printf("%t\n", (b>>4)&(1|2|4|8) != 0)
+	fmt.Printf("%f\n", math.Log2(8))
+}
 
 func TestRepeat(t *testing.T) {
 	// No separator

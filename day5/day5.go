@@ -156,15 +156,6 @@ func parseSeedRanges(line string) []seedRange {
 	return seeds
 }
 
-func parseMap(line string) (int, int, int) {
-	split := strings.Split(line, " ")
-	dest, _ := strconv.Atoi(split[0])
-	source, _ := strconv.Atoi(split[1])
-	length, _ := strconv.Atoi(split[2])
-
-	return dest, source, length
-}
-
 func parseMapSlice(line string) []int {
 	split := strings.Split(line, " ")
 	dest, _ := strconv.Atoi(split[0])

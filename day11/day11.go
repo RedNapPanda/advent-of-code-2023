@@ -1,10 +1,9 @@
 package day11
 
-import "fmt"
-
-type coord struct {
-	x, y int
-}
+import (
+	"aoc/aoc_util"
+	"fmt"
+)
 
 func Part1(lines []string) int {
 	galaxies := parseUniverse(lines, 2)
@@ -43,22 +42,22 @@ func Part2(lines []string, expansion int) int {
 	return sum
 }
 
-func parseUniverse(lines []string, expand int) []coord {
+func parseUniverse(lines []string, expand int) []aoc_util.Coordinate {
 	expand = expand - 1
-	var galaxies []coord
+	var galaxies []aoc_util.Coordinate
 	var matrix [][]byte
 	inc := 0
 	// parse rows and insert extra empty rows
 	for x, line := range lines {
 		matrix = append(matrix, make([]byte, len(line)))
 		isEmpty := true
-		nilCoord := coord{-1, -1}
+		nilCoord := aoc_util.Coordinate{X: -1, Y: -1}
 		galaxy := nilCoord
 		for y, c := range []byte(line) {
 			matrix[x][y] = c
 			if c == '#' {
 				isEmpty = false
-				galaxy = coord{x + inc, y}
+				galaxy = aoc_util.Coordinate{X: x + inc, Y: y}
 				galaxies = append(galaxies, galaxy)
 			}
 		}
@@ -91,8 +90,8 @@ func parseUniverse(lines []string, expand int) []coord {
 	for i, col := range emptyColumns {
 		for x := range galaxies {
 			expandedCol := col + i*expand
-			if galaxies[x].y > expandedCol {
-				galaxies[x].y += expand
+			if galaxies[x].Y > expandedCol {
+				galaxies[x].Y += expand
 			}
 		}
 	}
@@ -104,8 +103,8 @@ func parseUniverse(lines []string, expand int) []coord {
 // NO hint this year? other than the not so obvious repeating down-right path from galaxy 5 to 9
 // Path of down then right from 5 to 9 would have been more obvious
 // Found this after going down the Dijkstra's algorithm route....no thanks
-func manhattanDist(a, b coord) int {
-	return abs(a.x-b.x) + abs(a.y-b.y)
+func manhattanDist(a, b aoc_util.Coordinate) int {
+	return abs(a.X-b.X) + abs(a.Y-b.Y)
 }
 
 func abs(i int) int {
