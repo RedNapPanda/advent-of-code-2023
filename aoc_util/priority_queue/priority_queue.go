@@ -1,70 +1,34 @@
 package priority_queue
 
-import (
-    "cmp"
-    "sort"
-)
-
-/*
-PriorityQueue
-Keys slice is priority ordered on Push
-Store data in a map
-Must implement Weight, so we can do a valid comparison
-*/
-type PriorityQueue[K comparable, W cmp.Ordered] struct {
-    Keys  []K
-    Nodes map[K]W
+type Item[T any] struct {
+	Data     T
+	Priority int
 }
 
-// Len is part of sort.Interface
-func (q *PriorityQueue[K, W]) Len() int {
-    return len(q.Keys)
+type PriorityQueue[T any] []*Item[T]
+
+func (pq PriorityQueue[T]) Len() int {
+	return len(pq)
 }
 
-// Swap is part of sort.Interface
-func (q *PriorityQueue[K, W]) Swap(x, y int) {
-    q.Keys[x], q.Keys[y] = q.Keys[y], q.Keys[x]
+func (pq PriorityQueue[T]) Less(i, j int) bool {
+	return pq[i].Priority < pq[j].Priority
 }
 
-// Less is part of sort.Interface
-func (q *PriorityQueue[K, W]) Less(x, y int) bool {
-    return q.Nodes[q.Keys[x]] < q.Nodes[q.Keys[y]]
+func (pq PriorityQueue[T]) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
 }
 
-// Push updates or inserts a new key in the priority priority_queue
-func (q *PriorityQueue[K, W]) Push(key K, data W) {
-    if _, ok := q.Nodes[key]; !ok {
-        q.Keys = append(q.Keys, key)
-    }
-    q.Nodes[key] = data
-    sort.Sort(q)
+func (pq *PriorityQueue[T]) Push(x any) {
+	item := x.(*Item[T])
+	*pq = append(*pq, item)
 }
 
-// Pop returns the first (key, priority)
-func (q *PriorityQueue[K, W]) Pop() (K, W) {
-    if len(q.Keys) == 0 {
-        return *new(K), *new(W)
-    }
-    var key K
-    var weight W
-    var ok bool
-    q.Keys, key = q.Keys[1:], q.Keys[0]
-    if weight, ok = q.Nodes[key]; ok {
-        delete(q.Nodes, key)
-    }
-
-    return key, weight
-}
-
-// Get returns the cost of key
-func (q *PriorityQueue[K, W]) Get(key K) (weight W, ok bool) {
-    weight, ok = q.Nodes[key]
-    return
-}
-
-// NewPriorityQueue creates a new instance
-func NewPriorityQueue[K comparable, W cmp.Ordered]() *PriorityQueue[K, W] {
-    var q PriorityQueue[K, W]
-    q.Nodes = make(map[K]W)
-    return &q
+func (pq *PriorityQueue[T]) Pop() any {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil
+	*pq = old[0 : n-1]
+	return item
 }

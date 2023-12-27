@@ -71,7 +71,7 @@ func Process(lines []string, part int) int {
 			for n := 0; n < len(originalGrid[0]); n++ {
 				copy(grid[n], originalGrid[n])
 			}
-			var nodes []aoc_util.DirNode
+			var nodes []aoc_util.DirPoint
 
 			iterate := func() {
 				count = 0
@@ -89,29 +89,29 @@ func Process(lines []string, part int) int {
 			if part == 2 {
 				if i == 0 {
 					if j == 0 {
-						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: east}}
+						nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: east}}
 						iterate()
 					}
-					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: south}}
+					nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: south}}
 				} else if i == x {
 					if j == x {
-						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: west}}
+						nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: west}}
 					}
-					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: north}}
+					nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: north}}
 				} else if j == 0 {
 					if i == 0 {
-						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: south}}
+						nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: south}}
 						iterate()
 					}
-					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: east}}
+					nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: east}}
 				} else if j == x {
 					if i == x {
-						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: north}}
+						nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: north}}
 					}
-					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: west}}
+					nodes = []aoc_util.DirPoint{{X: i, Y: j, Dir: west}}
 				}
 			} else {
-				nodes = []aoc_util.DirNode{{X: 0, Y: 0, Dir: east}}
+				nodes = []aoc_util.DirPoint{{X: 0, Y: 0, Dir: east}}
 			}
 			iterate()
 		}
@@ -124,14 +124,14 @@ func Process(lines []string, part int) int {
 	}
 }
 
-func iterateNodes(node aoc_util.DirNode, grid [][]int, gridLen int) ([]aoc_util.DirNode, bool) {
+func iterateNodes(node aoc_util.DirPoint, grid [][]int, gridLen int) ([]aoc_util.DirPoint, bool) {
 	if node.X < 0 || node.X >= gridLen ||
 		node.Y < 0 || node.Y >= gridLen ||
 		hasVisited(grid, node.X, node.Y, node.Dir) {
 		return nil, false
 	}
 	previouslyVisited := false
-	var nodes []aoc_util.DirNode
+	var nodes []aoc_util.DirPoint
 	if grid[node.X][node.Y]>>4 != 0 {
 		previouslyVisited = true
 	}
@@ -155,12 +155,12 @@ func iterateNodes(node aoc_util.DirNode, grid [][]int, gridLen int) ([]aoc_util.
 	return nodes, len(nodes) > 0 && !previouslyVisited
 }
 
-func possibleNodes(grid [][]int, x, y int, cardinals ...int) []aoc_util.DirNode {
-	var nodes []aoc_util.DirNode
+func possibleNodes(grid [][]int, x, y int, cardinals ...int) []aoc_util.DirPoint {
+	var nodes []aoc_util.DirPoint
 	for _, cardinal := range cardinals {
 		nextX, nextY := nextPos(x, y, cardinal)
 		if !hasVisited(grid, nextX, nextY, cardinal) {
-			nodes = append(nodes, aoc_util.DirNode{X: nextX, Y: nextY, Dir: cardinal})
+			nodes = append(nodes, aoc_util.DirPoint{X: nextX, Y: nextY, Dir: cardinal})
 		}
 	}
 	return nodes
@@ -175,7 +175,7 @@ func hasVisited(grid [][]int, x, y, cardinal int) bool {
 }
 
 func nextPos(x, y, cardinal int) (int, int) {
-	// progress to next Node based on cardinal and x/y
+	// progress to next Point based on cardinal and x/y
 	switch cardinal {
 	case north:
 		return x - 1, y

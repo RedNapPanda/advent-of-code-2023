@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// 79 - 92, 55 - 67
 var example = strings.Split(`seeds: 79 14 55 13
 
 seed-to-soil map:

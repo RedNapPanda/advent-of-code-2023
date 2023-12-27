@@ -1,7 +1,9 @@
 package day5
 
 import (
+	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,14 +23,10 @@ var lineKeys = []string{
 type seedRange struct {
 	seed   int
 	length int
-	count  int
+	max1   int
 }
 
 func (s *seedRange) next() bool {
-	if s.count >= s.length {
-		return false
-	}
-	s.count++
 	s.seed++
 	return true
 }
@@ -75,12 +73,34 @@ func Part2(lines []string) int {
 	index := 0
 	lowest := math.MaxInt
 	var mutex sync.Mutex
+	// minRange, maxRange := math.MaxInt, -1
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
 		if strings.HasPrefix(line, seedPrefix) {
 			seedRanges = parseSeedRanges(line)
+			var newSeedRanges []seedRange
+			var prevSr seedRange
+			slices.SortFunc(seedRanges, func(a, b seedRange) int {
+				return a.seed - b.seed
+			})
+			for _, currSr := range seedRanges {
+				if prevSr != *new(seedRange) {
+					prevMax := prevSr.seed + prevSr.length
+					currMax := currSr.seed + currSr.length
+
+					if prevSr.seed <= currMax && currSr.seed <= prevMax {
+						newMax := min(prevMax, currMax)
+						newMin := max(prevSr.seed, currSr.seed)
+						newSr := seedRange{newMin, newMax - newMin, newMax}
+						fmt.Printf("p %+v %d | c %+v %d\n", prevSr, prevMax, currSr, currMax)
+						fmt.Printf("diff %d\n", currMax-prevMax)
+						newSeedRanges = append(newSeedRanges, newSr)
+					}
+				}
+				prevSr = currSr
+			}
 			continue
 		}
 		if index < len(lineKeys) && line == lineKeys[index] {
@@ -90,6 +110,7 @@ func Part2(lines []string) int {
 		}
 		m := parseMapSlice(line)
 		mapDatas[index-1].mappings = append(mapDatas[index-1].mappings, m)
+		// if m[0]
 	}
 	wg := sync.WaitGroup{}
 
@@ -151,7 +172,7 @@ func parseSeedRanges(line string) []seedRange {
 	for i := 0; i < len(split); i += 2 {
 		seed, _ := strconv.Atoi(split[i])
 		length, _ := strconv.Atoi(split[i+1])
-		seeds = append(seeds, seedRange{seed, length, 0})
+		seeds = append(seeds, seedRange{seed, length, seed + length})
 	}
 	return seeds
 }

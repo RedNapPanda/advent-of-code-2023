@@ -11,7 +11,7 @@ const (
 	west
 )
 
-type DistNode struct {
+type DirDistPoint struct {
 	X, Y, Dir, Dist int
 }
 
@@ -30,7 +30,7 @@ Get neighbors (left, right, forward if dist < 3)
 	Push neighbor, cost, heuristic to queue
 
 This takes ~200s for part 2... Needs some optimization, think it's the super simple priority queue sorting that's causing issues
-TODO: Reimplement this so that it takes < 1s
+Using std lib container/heap is ~0.63s vs the ~200s for a garbage inefficient variant via map + sorted slice priority queue
 */
 func Process(lines []string, part int) int {
 	gridLen := len(lines)
@@ -44,45 +44,45 @@ func Process(lines []string, part int) int {
 			y < yLen
 	}
 
-	neighbors := func(node *DistNode) []DistNode {
-		var neighbors []DistNode
+	neighbors := func(node *DirDistPoint) []DirDistPoint {
+		var neighbors []DirDistPoint
 		var x, y int
 		if node.Dist < 3 {
 			x, y = nextNode(node.X, node.Y, node.Dir)
 			if withinGrid(x, y) {
-				neighbors = append(neighbors, DistNode{X: x, Y: y, Dir: node.Dir, Dist: node.Dist + 1})
+				neighbors = append(neighbors, DirDistPoint{X: x, Y: y, Dir: node.Dir, Dist: node.Dist + 1})
 			}
 		}
 		left, right := turnLeftRight(node.Dir)
 		x, y = nextNode(node.X, node.Y, left)
 		if withinGrid(x, y) {
-			neighbors = append(neighbors, DistNode{X: x, Y: y, Dir: left, Dist: 1})
+			neighbors = append(neighbors, DirDistPoint{X: x, Y: y, Dir: left, Dist: 1})
 		}
 		x, y = nextNode(node.X, node.Y, right)
 		if withinGrid(x, y) {
-			neighbors = append(neighbors, DistNode{X: x, Y: y, Dir: right, Dist: 1})
+			neighbors = append(neighbors, DirDistPoint{X: x, Y: y, Dir: right, Dist: 1})
 		}
 		return neighbors
 	}
 
-	ultraNeighbors := func(node *DistNode) []DistNode {
-		var ultraNeighbor []DistNode
+	ultraNeighbors := func(node *DirDistPoint) []DirDistPoint {
+		var ultraNeighbor []DirDistPoint
 		var x, y int
 		if node.Dist < 10 {
 			x, y = nextNode(node.X, node.Y, node.Dir)
 			if withinGrid(x, y) {
-				ultraNeighbor = append(ultraNeighbor, DistNode{X: x, Y: y, Dir: node.Dir, Dist: node.Dist + 1})
+				ultraNeighbor = append(ultraNeighbor, DirDistPoint{X: x, Y: y, Dir: node.Dir, Dist: node.Dist + 1})
 			}
 		}
 		if node.Dist >= 4 || node.Dist == 0 {
 			left, right := turnLeftRight(node.Dir)
 			x, y = nextNode(node.X, node.Y, left)
 			if withinGrid(x, y) {
-				ultraNeighbor = append(ultraNeighbor, DistNode{X: x, Y: y, Dir: left, Dist: 1})
+				ultraNeighbor = append(ultraNeighbor, DirDistPoint{X: x, Y: y, Dir: left, Dist: 1})
 			}
 			x, y = nextNode(node.X, node.Y, right)
 			if withinGrid(x, y) {
-				ultraNeighbor = append(ultraNeighbor, DistNode{X: x, Y: y, Dir: right, Dist: 1})
+				ultraNeighbor = append(ultraNeighbor, DirDistPoint{X: x, Y: y, Dir: right, Dist: 1})
 			}
 		}
 		return ultraNeighbor
@@ -91,24 +91,23 @@ func Process(lines []string, part int) int {
 	if part == 2 {
 		partNeighbors = ultraNeighbors
 	}
-	endFunc := func(node *DistNode) bool {
+	endFunc := func(node *DirDistPoint) bool {
 		return node.X+1 == xLen && node.Y+1 == yLen
 	}
 	if part == 2 {
-		endFunc = func(node *DistNode) bool {
+		endFunc = func(node *DirDistPoint) bool {
 			return node.X+1 == xLen && node.Y+1 == yLen && node.Dist >= 4
 		}
 	}
 
-	sum, _, _ := astar.AStar[DistNode](
-		DistNode{Dir: east},
-		xLen*yLen,
+	sum, _, _ := astar.AStar[DirDistPoint](
+		DirDistPoint{Dir: east},
 		endFunc,
 		partNeighbors,
-		func(node *DistNode) int {
+		func(node *DirDistPoint) int {
 			return int(lines[node.X][node.Y] - '0')
 		},
-		func(node *DistNode) int {
+		func(node *DirDistPoint) int {
 			return 0 // no directional weight applied
 		},
 	)
