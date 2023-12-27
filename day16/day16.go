@@ -10,9 +10,9 @@ i |= dir << 4 - store direction bit
 i >> 4 - pull out direction bit
 i &= 0xF - bottom 4 bytes
 1 << 4 == 10000 == 16 == 2^(4-1)
+Storing these in the upper 4 bits of the byte i |= west << 4, so we could store all 4 states
 */
 const (
-	// Storing these in the upper 4 bits of the byte i |= west << 4, so we could store all 4 states
 	north = 1 << iota
 	east
 	south
@@ -29,13 +29,6 @@ var charBits = map[byte]int{
 	'>':  7,
 	'^':  8,
 	'V':  9,
-}
-
-var cardinalMirror = map[int]int{
-	north: south,
-	south: north,
-	east:  west,
-	west:  east,
 }
 
 var rtlCardinals = map[int]int{
@@ -69,12 +62,16 @@ func Process(lines []string, part int) int {
 	if part == 2 {
 		x = len(grid) - 2
 	}
-	for i := 0; i < x+1; i++ {
-		for j := 0; j < x+1; j++ {
+	/*
+		Part 2 naive approach would just be iterating row * col for W(n^2)
+		This is literally what I did cuz I'm lazy
+	*/
+	for i := 0; i < x+1; i++ { // row
+		for j := 0; j < x+1; j++ { // col
 			for n := 0; n < len(originalGrid[0]); n++ {
 				copy(grid[n], originalGrid[n])
 			}
-			var nodes []aoc_util.CardinalNode
+			var nodes []aoc_util.DirNode
 
 			iterate := func() {
 				count = 0
@@ -92,29 +89,29 @@ func Process(lines []string, part int) int {
 			if part == 2 {
 				if i == 0 {
 					if j == 0 {
-						nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: east}}
+						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: east}}
 						iterate()
 					}
-					nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: south}}
+					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: south}}
 				} else if i == x {
 					if j == x {
-						nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: west}}
+						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: west}}
 					}
-					nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: north}}
+					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: north}}
 				} else if j == 0 {
 					if i == 0 {
-						nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: south}}
+						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: south}}
 						iterate()
 					}
-					nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: east}}
+					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: east}}
 				} else if j == x {
 					if i == x {
-						nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: north}}
+						nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: north}}
 					}
-					nodes = []aoc_util.CardinalNode{{X: i, Y: j, Cardinal: west}}
+					nodes = []aoc_util.DirNode{{X: i, Y: j, Dir: west}}
 				}
 			} else {
-				nodes = []aoc_util.CardinalNode{{X: 0, Y: 0, Cardinal: east}}
+				nodes = []aoc_util.DirNode{{X: 0, Y: 0, Dir: east}}
 			}
 			iterate()
 		}
@@ -127,46 +124,43 @@ func Process(lines []string, part int) int {
 	}
 }
 
-/*
-Part 2 naive approach would just be iterate row * col for O(n^2)
-*/
-
-func iterateNodes(node aoc_util.CardinalNode, grid [][]int, gridLen int) ([]aoc_util.CardinalNode, bool) {
+func iterateNodes(node aoc_util.DirNode, grid [][]int, gridLen int) ([]aoc_util.DirNode, bool) {
 	if node.X < 0 || node.X >= gridLen ||
 		node.Y < 0 || node.Y >= gridLen ||
-		hasVisited(grid, node.X, node.Y, node.Cardinal) {
+		hasVisited(grid, node.X, node.Y, node.Dir) {
 		return nil, false
 	}
 	previouslyVisited := false
-	var nodes []aoc_util.CardinalNode
+	var nodes []aoc_util.DirNode
 	if grid[node.X][node.Y]>>4 != 0 {
 		previouslyVisited = true
 	}
 
 	lower := grid[node.X][node.Y] & 0xF
-	grid[node.X][node.Y] |= node.Cardinal << 4
+	// visited node with direction
+	grid[node.X][node.Y] |= node.Dir << 4
 
 	switch lower {
 	case charBits['.']:
-		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, node.Cardinal)...)
+		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, node.Dir)...)
 	case charBits['-']:
 		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, east, west)...)
 	case charBits['|']:
 		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, south, north)...)
 	case charBits['\\']: // ccw 90rot
-		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, ltrCardinals[node.Cardinal])...)
+		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, ltrCardinals[node.Dir])...)
 	case charBits['/']: // clockwise 90rot
-		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, rtlCardinals[node.Cardinal])...)
+		nodes = append(nodes, possibleNodes(grid, node.X, node.Y, rtlCardinals[node.Dir])...)
 	}
 	return nodes, len(nodes) > 0 && !previouslyVisited
 }
 
-func possibleNodes(grid [][]int, x, y int, cardinals ...int) []aoc_util.CardinalNode {
-	var nodes []aoc_util.CardinalNode
+func possibleNodes(grid [][]int, x, y int, cardinals ...int) []aoc_util.DirNode {
+	var nodes []aoc_util.DirNode
 	for _, cardinal := range cardinals {
 		nextX, nextY := nextPos(x, y, cardinal)
 		if !hasVisited(grid, nextX, nextY, cardinal) {
-			nodes = append(nodes, aoc_util.CardinalNode{X: nextX, Y: nextY, Cardinal: cardinal})
+			nodes = append(nodes, aoc_util.DirNode{X: nextX, Y: nextY, Dir: cardinal})
 		}
 	}
 	return nodes

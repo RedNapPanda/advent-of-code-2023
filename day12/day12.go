@@ -98,7 +98,7 @@ The transitions are:
 	if the character is . or ?, and the length of the current group is zero or exactly what we need, we can proceed without a group:
 	f (pos + 1, groups, 0) += f (pos, groups, len)
 
-In the end, the answer is f (lastPos, numberOfGroups, 0). (Add a trailing . to the string for convenience to avoid cases.)
+In the end, the answer is f (lastPos, numberOfGroups, 0). (Push a trailing . to the string for convenience to avoid cases.)
 
 dp[y][charIndex]
 dp[y][charIndex] =

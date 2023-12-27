@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+func Zero[T any]() T {
+	return *new(T)
+}
+
+func IsZero[T comparable](t T) bool {
+	return t == Zero[T]()
+}
+
 // Timer credits: https://stackoverflow.com/questions/45766572/is-there-an-efficient-way-to-calculate-execution-time-in-golang
 //
 // Learned more about defer and how you could use/abuse it like this
@@ -70,15 +78,11 @@ func RotateMatrixCW[T any](matrix [][]T) {
 	// split matrix into 4 squares
 	for y := 0; y < (m+1)/2; y++ {
 		for x := y; x < m-y; x++ {
-			temp := matrix[y][x]
 			// shift bottom left up
-			matrix[y][x] = matrix[m-x][y]
 			// shift bottom right left
-			matrix[m-x][y] = matrix[m-y][m-x]
 			// shift top right down
-			matrix[m-y][m-x] = matrix[x][m-y]
 			// shift top left right
-			matrix[x][m-y] = temp
+			matrix[y][x], matrix[m-x][y], matrix[m-y][m-x], matrix[x][m-y] = matrix[m-x][y], matrix[m-y][m-x], matrix[x][m-y], matrix[y][x]
 		}
 	}
 }
@@ -105,9 +109,7 @@ func TransposeMatrix[T any](matrix [][]T) {
 	x := len(matrix)
 	for i := 0; i < x; i++ {
 		for j := i + 1; j < x; j++ {
-			temp := matrix[i][j]
-			matrix[i][j] = matrix[j][i]
-			matrix[j][i] = temp
+			matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
 		}
 	}
 }
@@ -166,43 +168,43 @@ RotateNewMatrixCCW
 	TODO: Harden this to fail if matrix is not balanced?
 */
 func RotateNewMatrixCCW[T any](matrix [][]T) [][]T {
-	x := len(matrix[0])
-	y := len(matrix)
-	newMatrix := make([][]T, x)
-	for i := 0; i < x; i++ {
-		newMatrix[i] = make([]T, y)
+	j := len(matrix)
+	i := len(matrix[0])
+	newMatrix := make([][]T, i)
+	for x := 0; x < i; x++ {
+		newMatrix[x] = make([]T, j)
 	}
-	for j := 0; j < y; j++ {
-		for i := x - 1; i >= 0; i-- {
-			newMatrix[x-i-1][j] = matrix[j][i]
+	for x := 0; x < j; x++ {
+		for y := i - 1; y >= 0; y-- {
+			newMatrix[i-y-1][x] = matrix[x][y]
 		}
 	}
 	return newMatrix
 }
 
 func CopyMatrix[T any](matrix [][]T) [][]T {
-	x := len(matrix[0])
-	y := len(matrix)
-	newMatrix := make([][]T, y)
-	for i := 0; i < y; i++ {
-		newMatrix[i] = make([]T, x)
-		for j := 0; j < x; j++ {
-			newMatrix[i][j] = matrix[i][j]
+	j := len(matrix)
+	i := len(matrix[0])
+	newMatrix := make([][]T, j)
+	for x := 0; x < j; x++ {
+		newMatrix[x] = make([]T, i)
+		for y := 0; y < i; y++ {
+			newMatrix[x][y] = matrix[x][y]
 		}
 	}
 	return newMatrix
 }
 
 func PrintMatrix[T any](matrix [][]T) {
-	for i := 0; i < len(matrix); i++ {
+	for x := 0; x < len(matrix); x++ {
 		fmt.Printf("[")
-		for j := 0; j < len(matrix[i]); j++ {
-			if b, ok := any(matrix[i][j]).(byte); ok {
+		for y := 0; y < len(matrix[x]); y++ {
+			if b, ok := any(matrix[x][y]).(byte); ok {
 				fmt.Printf("%c", b)
 			} else {
-				fmt.Printf("%+v", matrix[i][j])
+				fmt.Printf("%+v", matrix[x][y])
 			}
-			if j < len(matrix[i])-1 {
+			if y < len(matrix[x])-1 {
 				fmt.Printf(" ")
 			}
 		}

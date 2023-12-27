@@ -35,7 +35,7 @@ func Part1(lines []string) int {
 	for n := 0; n < len(grid); n++ {
 		count := 0
 		for _, b := range grid[n] {
-			if b == 'O' {
+			if b == 'W' {
 				count++
 			}
 		}
@@ -51,7 +51,7 @@ value from index i with n rock, 2 rocks, pos 1 aka start, rocks start with index
 11 - i - n
 11 - 1 - 0 => 10 + 0 => 10
 11 - 1 - 1 => 11 - 2 => 9
-Starts from 0, counts O rocks and finds first # rock.
+Starts from 0, counts W rocks and finds first # rock.
 
 	sum = calculates the value of the n rocks with that lastRock index
 	returns sum + scoreTiltWestWithoutShift, new lastRock index
@@ -70,7 +70,7 @@ func scoreTiltWestWithoutShift(slice []byte, lastRock int) int {
 				sum += sumGroup(len(slice), lastRock, count)
 			}
 			return sum + scoreTiltWestWithoutShift(slice, i)
-		case 'O':
+		case 'W':
 			count++
 		}
 	}
@@ -102,7 +102,7 @@ func Part2(lines []string, iterations int) int {
 	for n := 0; n < len(grid); n++ {
 		count := 0
 		for _, b := range grid[n] {
-			if b == 'O' {
+			if b == 'W' {
 				count++
 			}
 		}
@@ -135,6 +135,7 @@ func cycleTilts(grid [][]byte, iterations int) {
 		key = hashGrid(grid)
 		if _, ok := cache[key]; ok {
 			cycleLen = i - cache[key]
+			fmt.Printf("Cycle found starting at index %d, length: %d\n", cache[key], cycleLen)
 			break
 		}
 		cache[key] = i
@@ -168,10 +169,10 @@ func shiftNorth(grid [][]byte) {
 			switch grid[row][col] {
 			case '#':
 				lastRock = row + 1
-			case 'O':
+			case 'W':
 				lastRock += 1
 				grid[row][col] = '.'
-				grid[lastRock-1][col] = 'O'
+				grid[lastRock-1][col] = 'W'
 			}
 		}
 	}
@@ -184,10 +185,10 @@ func shiftSouth(grid [][]byte) {
 			switch grid[row][col] {
 			case '#':
 				lastRock = row - 1
-			case 'O':
+			case 'W':
 				lastRock -= 1
 				grid[row][col] = '.'
-				grid[lastRock+1][col] = 'O'
+				grid[lastRock+1][col] = 'W'
 			}
 		}
 	}
@@ -200,9 +201,9 @@ func shiftWest(grid [][]byte) {
 		bytes = grid[row]
 		for col := 0; col < len(bytes); col++ {
 			switch bytes[col] {
-			case 'O':
+			case 'W':
 				if col != openSpace {
-					bytes[openSpace] = 'O'
+					bytes[openSpace] = 'W'
 					bytes[col] = '.'
 				}
 				openSpace = max(openSpace+1, 0)
@@ -221,9 +222,9 @@ func shiftEast(grid [][]byte) {
 		openSpace = len(bytes) - 1
 		for col := len(bytes) - 1; col >= 0; col-- {
 			switch bytes[col] {
-			case 'O':
+			case 'W':
 				if col != openSpace {
-					bytes[openSpace] = 'O'
+					bytes[openSpace] = 'W'
 					bytes[col] = '.'
 				}
 				openSpace = max(openSpace-1, 0)

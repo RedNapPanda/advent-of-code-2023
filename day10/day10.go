@@ -2,23 +2,23 @@ package day10
 
 import "aoc/aoc_util"
 
-var pipeCheck = func(tile, prev aoc_util.Coordinate) bool { return tile.Y == prev.Y }
-var dashCheck = func(tile, prev aoc_util.Coordinate) bool { return tile.X == prev.X }
-var lCheck = func(tile, prev aoc_util.Coordinate) bool {
+var pipeCheck = func(tile, prev aoc_util.Node) bool { return tile.Y == prev.Y }
+var dashCheck = func(tile, prev aoc_util.Node) bool { return tile.X == prev.X }
+var lCheck = func(tile, prev aoc_util.Node) bool {
 	return (tile.X > prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y < prev.Y)
 }
-var jCheck = func(tile, prev aoc_util.Coordinate) bool {
+var jCheck = func(tile, prev aoc_util.Node) bool {
 	return (tile.X > prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y > prev.Y)
 }
-var sevenCheck = func(tile, prev aoc_util.Coordinate) bool {
+var sevenCheck = func(tile, prev aoc_util.Node) bool {
 	return (tile.X < prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y > prev.Y)
 }
-var fCheck = func(tile, prev aoc_util.Coordinate) bool {
+var fCheck = func(tile, prev aoc_util.Node) bool {
 	return (tile.X < prev.X && tile.Y == prev.Y) || (tile.X == prev.X && tile.Y < prev.Y)
 }
 
 func Process(lines []string) (int, int) {
-	var start aoc_util.Coordinate
+	var start aoc_util.Node
 	var tiles [][]byte
 	cleanTiles := make([][]byte, len(lines))
 	for x, line := range lines {
@@ -27,7 +27,7 @@ func Process(lines []string) (int, int) {
 
 		for y := 0; y < len(bytes); y++ {
 			if bytes[y] == 'S' {
-				start = aoc_util.Coordinate{X: x, Y: y}
+				start = aoc_util.Node{X: x, Y: y}
 			}
 		}
 		cleanTiles[x] = make([]byte, len(line))
@@ -37,22 +37,22 @@ func Process(lines []string) (int, int) {
 	x2 := min(len(tiles), start.X+1)
 	y2 := min(len(tiles[start.X]), start.Y+1) // data assumption that all rows are the same length
 
-	var checks []aoc_util.Coordinate
+	var checks []aoc_util.Node
 	if start.X-1 >= 0 {
-		checks = append(checks, aoc_util.Coordinate{X: x1, Y: start.Y})
+		checks = append(checks, aoc_util.Node{X: x1, Y: start.Y})
 	}
 	if start.Y-1 >= 0 {
-		checks = append(checks, aoc_util.Coordinate{X: start.X, Y: y1})
+		checks = append(checks, aoc_util.Node{X: start.X, Y: y1})
 	}
 	if start.X+1 <= len(tiles) {
-		checks = append(checks, aoc_util.Coordinate{X: x2, Y: start.Y})
+		checks = append(checks, aoc_util.Node{X: x2, Y: start.Y})
 	}
 	if start.Y+1 <= len(tiles[start.X]) {
-		checks = append(checks, aoc_util.Coordinate{X: start.X, Y: y2})
+		checks = append(checks, aoc_util.Node{X: start.X, Y: y2})
 	}
 
 	prev := start
-	var next aoc_util.Coordinate
+	var next aoc_util.Node
 	count := 1
 	for _, tile := range checks {
 		if p, _, c, ok, _ := nextTile(tiles, start, tile, count); ok {
@@ -86,7 +86,7 @@ func Process(lines []string) (int, int) {
 	return (count - 1) / 2, area
 }
 
-func nextTile(tiles [][]byte, prev aoc_util.Coordinate, target aoc_util.Coordinate, count int) (aoc_util.Coordinate, aoc_util.Coordinate, int, bool, bool) {
+func nextTile(tiles [][]byte, prev aoc_util.Node, target aoc_util.Node, count int) (aoc_util.Node, aoc_util.Node, int, bool, bool) {
 	next := target
 	b := tiles[target.X][target.Y]
 
@@ -131,7 +131,7 @@ func nextTile(tiles [][]byte, prev aoc_util.Coordinate, target aoc_util.Coordina
 	case b == '.':
 		return prev, target, count, false, false
 	}
-	next = aoc_util.Coordinate{X: x, Y: y}
+	next = aoc_util.Node{X: x, Y: y}
 	notTarget := next != target
 	if notTarget {
 		count++
