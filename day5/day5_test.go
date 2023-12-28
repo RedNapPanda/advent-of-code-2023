@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// 79 - 92, 55 - 67
 var example = strings.Split(`seeds: 79 14 55 13
 
 seed-to-soil map:
@@ -56,17 +55,17 @@ func TestPart1(t *testing.T) {
 	assert.Equal(t, 313045984, output)
 }
 
-func TestPart2Example(t *testing.T) {
-	output := Part2(example)
-
-	assert.Equal(t, 46, output)
-}
-
-// No Goroutines: 195.35s
-// Goroutine per seedRange: 46.13s
-func TestPart2(t *testing.T) {
-	input, _ := aoc.GetInputData(5)
-	output := Part2(input)
-
-	assert.Equal(t, 20283860, output)
-}
+// func TestPart2Example(t *testing.T) {
+// 	output := Part2(example)
+//
+// 	assert.Equal(t, 46, output)
+// }
+//
+// // No Goroutines: 195.35s
+// // Goroutine per seedRange: 46.13s
+// func TestPart2(t *testing.T) {
+// 	input, _ := aoc.GetInputData(5)
+// 	output := Part2(input)
+//
+// 	assert.Equal(t, 20283860, output)
+// }

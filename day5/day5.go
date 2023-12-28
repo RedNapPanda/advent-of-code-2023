@@ -1,16 +1,14 @@
 package day5
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 )
 
-var seedPrefix = "seeds: "
-var lineKeys = []string{
+var mapKeys = []string{
+	"seeds: ",
 	"seed-to-soil map:",
 	"soil-to-fertilizer map:",
 	"fertilizer-to-water map:",
@@ -20,168 +18,122 @@ var lineKeys = []string{
 	"humidity-to-location map:",
 }
 
-type seedRange struct {
-	seed   int
-	length int
-	max1   int
+type intRange struct {
+	start, end int
 }
 
-func (s *seedRange) next() bool {
-	s.seed++
-	return true
-}
+/*
+f(x) = if input intersects src range -> shift intersection and create additional ranges to cover XOR
 
-type mapData struct {
-	key      string
-	mappings [][]int
+Use a deque to handle the additional ranges that don't intersect.  They could intersect with another mapping or just fallthrough.
+[98,104) AND [98,100) -> [50,52) + [100,104)
+[40,68) AND [50,98) -> [40,50) + [52,70)
+[79,93) AND [50,98) -> [81,95)
+[55,68) AND [50,98) -> [57,70)
+
+[98,100) -> [50,52)
+[50,98) -> [52,100)
+
+break at first intersected range
+*/
+type mapRange struct {
+	start, end, shift int
 }
 
 func Part1(lines []string) int {
-	var mapDatas []mapData
-	var seeds []int
-	index := 0
 	lowest := math.MaxInt
-	for _, line := range lines {
-		if len(line) == 0 {
-			continue
+	val := 0
+	mapDatas := parseMappings(lines, 1)
+	for _, mapSeed := range mapDatas[0] {
+		val = mapSeed.start
+		for n := 1; n < len(mapKeys); n++ {
+			for _, mr := range mapDatas[n] {
+				if mr.shift != -1 && val >= mr.start && val < mr.end {
+					val = val + (mr.shift - mr.start)
+					break
+				}
+			}
 		}
-		if strings.HasPrefix(line, seedPrefix) {
-			seeds = parseSeeds(line)
-			continue
-		}
-		if index < len(lineKeys) && line == lineKeys[index] {
-			index++
-			mapDatas = append(mapDatas, mapData{})
-			continue
-		}
-		m := parseMapSlice(line)
-		mapDatas[index-1].mappings = append(mapDatas[index-1].mappings, m)
-	}
-
-	for _, seed := range seeds {
-		seed = applyMappings(mapDatas, seed)
-		if seed < lowest {
-			lowest = seed
+		if val < lowest {
+			lowest = val
 		}
 	}
 	return lowest
 }
 
+// TODO: Finish optimizing this. Getting distract with BFS/DFS atm, which isn't related
 func Part2(lines []string) int {
-	var mapDatas []mapData
-	var seedRanges []seedRange
-	index := 0
 	lowest := math.MaxInt
-	var mutex sync.Mutex
-	// minRange, maxRange := math.MaxInt, -1
+	val := 0
+	mapDatas := parseMappings(lines, 2)
+	mr := mapDatas[0]
+	var intersected []mapRange
+	for _, mapSeed := range mapDatas[0] {
+		val = mapSeed.start
+		for _, key := range mapKeys {
+			for _, mr := range mapDatas[key] {
+				if val >= mr.start && val < mr.end {
+					val = val + (mr.shift - mr.start)
+					break
+				}
+			}
+		}
+		if val < lowest {
+			lowest = val
+		}
+	}
+	return lowest
+}
+
+func parseMappings(lines []string, part int) map[int][]mapRange {
+	index := 1
+	val := make(map[int][]mapRange)
+	var mapRanges []mapRange
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
-		if strings.HasPrefix(line, seedPrefix) {
-			seedRanges = parseSeedRanges(line)
-			var newSeedRanges []seedRange
-			var prevSr seedRange
-			slices.SortFunc(seedRanges, func(a, b seedRange) int {
-				return a.seed - b.seed
-			})
-			for _, currSr := range seedRanges {
-				if prevSr != *new(seedRange) {
-					prevMax := prevSr.seed + prevSr.length
-					currMax := currSr.seed + currSr.length
-
-					if prevSr.seed <= currMax && currSr.seed <= prevMax {
-						newMax := min(prevMax, currMax)
-						newMin := max(prevSr.seed, currSr.seed)
-						newSr := seedRange{newMin, newMax - newMin, newMax}
-						fmt.Printf("p %+v %d | c %+v %d\n", prevSr, prevMax, currSr, currMax)
-						fmt.Printf("diff %d\n", currMax-prevMax)
-						newSeedRanges = append(newSeedRanges, newSr)
-					}
+		if strings.HasPrefix(line, mapKeys[0]) {
+			var seeds []mapRange
+			if part == 1 {
+				split := strings.Split(line[len(mapKeys[0]):], " ")
+				for _, s := range split {
+					v, _ := strconv.Atoi(s)
+					seeds = append(seeds, mapRange{start: v, end: v})
 				}
-				prevSr = currSr
+			} else if part == 2 {
+				split := strings.Split(line[len(mapKeys[0]):], " ")
+				seeds = make([]mapRange, len(split))
+				for i := 0; i < len(split); i += 2 {
+					start, _ := strconv.Atoi(split[i])
+					end, _ := strconv.Atoi(split[i+1])
+					seeds = append(seeds, mapRange{start: start, end: end})
+				}
 			}
+			val[0] = seeds
 			continue
 		}
-		if index < len(lineKeys) && line == lineKeys[index] {
+		if index < len(mapKeys) && line == mapKeys[index] {
+			if len(mapRanges) != 0 {
+				val[index] = mapRanges
+			}
 			index++
-			mapDatas = append(mapDatas, mapData{})
+			mapRanges = []mapRange{}
 			continue
 		}
-		m := parseMapSlice(line)
-		mapDatas[index-1].mappings = append(mapDatas[index-1].mappings, m)
-		// if m[0]
+		split := strings.Split(line, " ")
+		dest, _ := strconv.Atoi(split[0])
+		src, _ := strconv.Atoi(split[1])
+		length, _ := strconv.Atoi(split[2])
+		mapRanges = append(mapRanges, mapRange{src, src + length, dest})
 	}
-	wg := sync.WaitGroup{}
+	val[index] = mapRanges
 
-	for _, sr := range seedRanges {
-		wg.Add(1)
-		go func(sr seedRange) {
-			defer wg.Done()
-			rangeLeast := math.MaxInt
-			for ok := true; ok; ok = sr.next() {
-				targetSeed := applyMappings(mapDatas, sr.seed)
-				if targetSeed < rangeLeast {
-					rangeLeast = targetSeed
-				}
-			}
-			mutex.Lock()
-			if rangeLeast < lowest {
-				lowest = rangeLeast
-			}
-			mutex.Unlock()
-		}(sr)
+	for _, v := range val {
+		slices.SortFunc(v, func(a, b mapRange) int {
+			return a.start - b.start
+		})
 	}
-	wg.Wait()
-	return lowest
-}
 
-func applyMappings(mapDatas []mapData, seed int) int {
-	for _, mapData := range mapDatas {
-		for _, mapping := range mapData.mappings {
-			v, mapped := mapValue(mapping, seed)
-			seed = v
-			if mapped {
-				break
-			}
-		}
-	}
-	return seed
-}
-
-func mapValue(mapping []int, value int) (int, bool) {
-	if mapping[1] <= value && value < mapping[1]+mapping[2] {
-		return value - mapping[1] + mapping[0], true
-	}
-	return value, false
-}
-
-func parseSeeds(line string) []int {
-	split := strings.Split(line[len(seedPrefix):], " ")
-	var seeds []int
-	for i := 0; i < len(split); i++ {
-		seed, _ := strconv.Atoi(split[i])
-		seeds = append(seeds, seed)
-	}
-	return seeds
-}
-
-func parseSeedRanges(line string) []seedRange {
-	split := strings.Split(line[len(seedPrefix):], " ")
-	var seeds []seedRange
-	for i := 0; i < len(split); i += 2 {
-		seed, _ := strconv.Atoi(split[i])
-		length, _ := strconv.Atoi(split[i+1])
-		seeds = append(seeds, seedRange{seed, length, seed + length})
-	}
-	return seeds
-}
-
-func parseMapSlice(line string) []int {
-	split := strings.Split(line, " ")
-	dest, _ := strconv.Atoi(split[0])
-	source, _ := strconv.Atoi(split[1])
-	length, _ := strconv.Atoi(split[2])
-
-	return []int{dest, source, length}
+	return val
 }

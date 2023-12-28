@@ -49,16 +49,25 @@ type FlattenedGrid[T any] struct {
 
 // Get value at grid[x][y]
 func (g *FlattenedGrid[T]) Get(x, y int) T {
+	if g == nil {
+		return *new(T)
+	}
 	return g.Data[x*g.Offset+y]
 }
 
 // Set grid[x][y] to data
 func (g *FlattenedGrid[T]) Set(x, y int, data T) {
+	if g == nil {
+		return
+	}
 	g.Data[x*g.Offset+y] = data
 }
 
 // Index of grid[x][y] in Data
 func (g *FlattenedGrid[T]) Index(x, y int) int {
+	if g == nil {
+		return -1
+	}
 	val := x*g.Offset + y
 	if val >= len(g.Data) {
 		return -1
@@ -68,7 +77,7 @@ func (g *FlattenedGrid[T]) Index(x, y int) int {
 
 // IndexTo convert Index to (x, y) in grid[x][y]
 func (g *FlattenedGrid[T]) IndexTo(index int) (int, int) {
-	if index < 0 || index >= len(g.Data) {
+	if g == nil || index < 0 || index >= len(g.Data) {
 		return -1, -1
 	}
 	return index / g.Offset, index % g.Offset
@@ -76,10 +85,16 @@ func (g *FlattenedGrid[T]) IndexTo(index int) (int, int) {
 
 // Len - length of the Data
 func (g *FlattenedGrid[T]) Len() int {
+	if g == nil {
+		return 0
+	}
 	return len(g.Data)
 }
 
 func (g *FlattenedGrid[T]) Print(format, separator string) {
+	if g == nil {
+		return
+	}
 	fmt.Printf("[%s", separator)
 	for n := 0; n < g.Len(); n++ {
 		fmt.Printf(format, g.Data[n])
@@ -96,6 +111,9 @@ func (g *FlattenedGrid[T]) Print(format, separator string) {
 }
 
 func (g *FlattenedGrid[T]) Fill(grid [][]T) {
+	if g == nil {
+		return
+	}
 	for x := 0; x < len(grid); x++ {
 		for y := 0; y < len(grid[x]); y++ {
 			g.Data[x*g.Offset+y] = grid[x][y]
