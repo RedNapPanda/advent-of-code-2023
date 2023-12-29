@@ -2,7 +2,7 @@ package day5
 
 import (
 	aoc "aoc"
-	"fmt"
+	"aoc/aoc_util"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -44,36 +44,31 @@ humidity-to-location map:
 `, "\n")
 
 func TestPart1Example(t *testing.T) {
-	output := Part1(example)
+	output := Process(example, 1)
 
 	assert.Equal(t, 35, output)
 }
 
 func TestPart1(t *testing.T) {
 	input, _ := aoc.GetInputData(5)
-	output := Part1(input)
+	output := Process(input, 1)
 
 	assert.Equal(t, 313045984, output)
 }
 
 func TestPart2Example(t *testing.T) {
-	output := Part2(example)
+	output := Process(example, 2)
 
 	assert.Equal(t, 46, output)
 }
 
 // No Goroutines: 195.35s
 // Goroutine per seedRange: 46.13s
+// Not bruteforce: 509.7µs - could probably shave off more if prioritized  lower layers first and merged ranges.
 func TestPart2(t *testing.T) {
+	defer aoc_util.Timer("part2")()
 	input, _ := aoc.GetInputData(5)
-	output := Part2(input)
+	output := Process(input, 2)
 
 	assert.Equal(t, 20283860, output)
-}
-
-func TestIntersect(t *testing.T) {
-	m := mapRange{5, 20, 1}
-	s := mapRange{100, 106, 2}
-	b, i, rem := m.intersect(s)
-	fmt.Printf("%t | %+v | %+v\n", b, i, rem)
 }

@@ -67,52 +67,9 @@ type step struct {
 	step int
 }
 
-func Part1(lines []string) int {
+func Process(lines []string, part int) int {
 	lowest := math.MaxInt
-	mapDatas := parseMappings(lines, 1)
-	var steps []step
-	for s := 0; s < len(mapDatas[0]); s++ {
-		steps = append(steps, step{mapDatas[0][s], 1})
-	}
-	var completed []mapRange
-stepJmp:
-	for len(steps) > 0 {
-		s := steps[0]
-		steps = steps[1:]
-		if s.step == len(mapKeys)-1 {
-			completed = append(completed, s.mapRange)
-			if s.start < lowest {
-				lowest = s.start
-			}
-			continue
-		}
-
-		for _, mp := range mapDatas[s.step] {
-			b, i, rm := s.mapRange.intersect(mp)
-			if !b {
-				continue
-			}
-			if len(rm) != 0 {
-				for _, r := range rm {
-					steps = append(steps, step{r, s.step})
-				}
-			}
-			i.start += i.shift
-			i.end += i.shift
-			steps = append(steps, step{i, s.step + 1})
-			continue stepJmp
-		}
-		s.step += 1
-		steps = append(steps, s)
-	}
-
-	return lowest
-}
-
-// TODO: Finish optimizing this. Getting distract with BFS/DFS atm, which isn't related
-func Part2(lines []string) int {
-	lowest := math.MaxInt
-	mapDatas := parseMappings(lines, 2)
+	mapDatas := parseMappings(lines, part)
 	var steps []step
 	for s := 0; s < len(mapDatas[0]); s++ {
 		steps = append(steps, step{mapDatas[0][s], 1})
