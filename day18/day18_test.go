@@ -40,7 +40,7 @@ func TestPart2Example(t *testing.T) {
 }
 func TestPart2(t *testing.T) {
 	input, _ := aoc.GetInputData(18)
-	output := Process2(input, 2)
+	output := Process(input, 2)
 
 	assert.Equal(t, 72811019847283, output)
 }

@@ -54,36 +54,6 @@ func Process(lines []string, part int) int {
 	return v
 }
 
-func Process2(lines []string, part int) int {
-
-	x, y := 0, 0
-	count := 0
-	points := make([]ColoredPoint, len(lines))
-	for i, l := range lines {
-		points[i] = ColoredPoint{x: x, y: y, c: ""}
-		dir, steps, _ := parse(l, part)
-
-		switch dir {
-		case right:
-			y += steps
-		case down:
-			x += steps
-		case left:
-			y -= steps
-		case up:
-			x -= steps
-		}
-		count += steps
-	}
-
-	// result 42, off by 20 from example answer
-	// perimeter is 38, p / 2 = 19, which is 1 off..
-	// This is from pick's theorem -> i + 0.5p - 1
-	// the trench is inside the polygon and therefore the polygon is actually half a step larger
-	// difference between the 2 polygons is perimeter/2 + 1
-	return shoelace(points) + count/2 + 1
-}
-
 func parse(l string, part int) (int, int, string) {
 	s := strings.Split(l, " ")
 	var d int
