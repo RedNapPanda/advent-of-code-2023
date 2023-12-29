@@ -2,6 +2,7 @@ package day5
 
 import (
 	aoc "aoc"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -55,17 +56,24 @@ func TestPart1(t *testing.T) {
 	assert.Equal(t, 313045984, output)
 }
 
-// func TestPart2Example(t *testing.T) {
-// 	output := Part2(example)
-//
-// 	assert.Equal(t, 46, output)
-// }
-//
-// // No Goroutines: 195.35s
-// // Goroutine per seedRange: 46.13s
-// func TestPart2(t *testing.T) {
-// 	input, _ := aoc.GetInputData(5)
-// 	output := Part2(input)
-//
-// 	assert.Equal(t, 20283860, output)
-// }
+func TestPart2Example(t *testing.T) {
+	output := Part2(example)
+
+	assert.Equal(t, 46, output)
+}
+
+// No Goroutines: 195.35s
+// Goroutine per seedRange: 46.13s
+func TestPart2(t *testing.T) {
+	input, _ := aoc.GetInputData(5)
+	output := Part2(input)
+
+	assert.Equal(t, 20283860, output)
+}
+
+func TestIntersect(t *testing.T) {
+	m := mapRange{5, 20, 1}
+	s := mapRange{100, 106, 2}
+	b, i, rem := m.intersect(s)
+	fmt.Printf("%t | %+v | %+v\n", b, i, rem)
+}

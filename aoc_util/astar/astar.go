@@ -6,12 +6,8 @@ import (
 )
 
 type VisitedNode[T comparable] struct {
-	Parent T
-	Score  int
-}
-
-type scoredNode[T comparable] struct {
-	Node      T
+	Node      *T
+	Parent    *T
 	Score     int
 	Heuristic int
 }
@@ -28,47 +24,55 @@ Heuristic func - calculate g(n T) for n to dst diff for [current, neighbor]
 
 Need to carry forward the Score sum when pushing neighbors to queue
 */
-func AStar[T comparable](src T, destinationFn func(*T) bool, neighborsFn func(*T) []T, scoreFn func(*T) int, heuristicFn func(*T) int) (int, VisitedNode[T], map[T]VisitedNode[T]) {
-	var destination scoredNode[T]
+func AStar[T comparable](src *T, destinationFn func(*T) bool, neighborsFn func(*T) []T, scoreFn func(*T) int, heuristicFn func(*T) int) (VisitedNode[T], []VisitedNode[T], map[T]VisitedNode[T]) {
+	var dest VisitedNode[T]
+	var pq priority_queue.PriorityQueue[VisitedNode[T]]
 	visitedMap := make(map[T]VisitedNode[T])
-	var pq priority_queue.PriorityQueue[scoredNode[T]]
+	srcH := heuristicFn(src)
+	srcVN := VisitedNode[T]{src, nil, 0, srcH}
+	visitedMap[*src] = srcVN
+	item := buildItem(srcVN, srcH)
+
 	heap.Init(&pq)
-
-	srcHeuristic := heuristicFn(&src)
-	item := buildItem(scoredNode[T]{src, 0, srcHeuristic}, srcHeuristic)
-
 	heap.Push(&pq, item)
-	visitedMap[src] = VisitedNode[T]{src, 0}
 
-	var current scoredNode[T]
-	var score int
 	for pq.Len() > 0 {
-		item = heap.Pop(&pq).(*priority_queue.Item[scoredNode[T]])
-		current, score = item.Data, item.Priority
-		if destinationFn(&current.Node) {
-			destination = current
+		item = heap.Pop(&pq).(*priority_queue.Item[VisitedNode[T]])
+		current, score := item.Data, item.Priority
+		if destinationFn(current.Node) {
+			dest = current
 			break
 		}
 
-		for _, neighbor := range neighborsFn(&current.Node) {
-			visitedMap[current.Node] = VisitedNode[T]{current.Node, score}
-			if _, ok := visitedMap[neighbor]; ok {
-				continue
-			}
+		neighbors := neighborsFn(current.Node)
+		for i, _ := range neighbors {
+			neighbor := neighbors[i]
 			newScore := score + scoreFn(&neighbor)
-			visitedNeighbor, wasVisited := visitedMap[neighbor]
-			if !wasVisited || newScore < visitedNeighbor.Score {
-				newItem := buildItem(scoredNode[T]{neighbor, newScore, heuristicFn(&neighbor)}, newScore+heuristicFn(&neighbor))
+			visitedNeighbor, visited := visitedMap[neighbor]
+			if !visited || newScore < visitedNeighbor.Score {
+				vn := VisitedNode[T]{&neighbor, current.Node, newScore, heuristicFn(&neighbor)}
+				visitedMap[neighbor] = vn
+				newItem := buildItem(vn, newScore+heuristicFn(&neighbor))
 				heap.Push(&pq, newItem)
-				visitedMap[neighbor] = VisitedNode[T]{current.Node, newScore}
 			}
 		}
 	}
 
-	return visitedMap[destination.Node].Score, visitedMap[destination.Node], visitedMap
+	if dest.Node == nil || dest.Parent == nil {
+		return dest, nil, nil
+	}
+
+	var l []VisitedNode[T]
+	n := visitedMap[*dest.Node]
+	for n.Parent != nil {
+		l = append(l, n)
+		n = visitedMap[*n.Parent]
+	}
+
+	return visitedMap[*dest.Node], l, visitedMap
 }
 
-func buildItem[T comparable](node scoredNode[T], weight int) *priority_queue.Item[scoredNode[T]] {
-	item := priority_queue.Item[scoredNode[T]]{Data: node, Priority: weight}
+func buildItem[T comparable](node VisitedNode[T], weight int) *priority_queue.Item[VisitedNode[T]] {
+	item := priority_queue.Item[VisitedNode[T]]{Data: node, Priority: weight}
 	return &item
 }

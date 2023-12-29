@@ -40,53 +40,120 @@ type mapRange struct {
 	start, end, shift int
 }
 
+func (m mapRange) intersect(o mapRange) (bool, mapRange, []mapRange) {
+	if o.start >= m.end || m.start >= o.end {
+		return false, m, nil
+	}
+	if m.start >= o.start && m.end <= o.end {
+		return true, mapRange{m.start, m.end, o.shift}, nil
+	}
+	ms := max(m.start, o.start)
+	me := min(m.end, o.end)
+
+	var rem []mapRange
+	if m.start < o.start {
+		rem = append(rem, mapRange{m.start, o.start, 0})
+	}
+
+	if m.end > o.end {
+		rem = append(rem, mapRange{o.end, m.end, 0})
+	}
+
+	return true, mapRange{ms, me, o.shift}, rem
+}
+
+type step struct {
+	mapRange
+	step int
+}
+
 func Part1(lines []string) int {
 	lowest := math.MaxInt
-	val := 0
 	mapDatas := parseMappings(lines, 1)
-	for _, mapSeed := range mapDatas[0] {
-		val = mapSeed.start
-		for n := 1; n < len(mapKeys); n++ {
-			for _, mr := range mapDatas[n] {
-				if mr.shift != -1 && val >= mr.start && val < mr.end {
-					val = val + (mr.shift - mr.start)
-					break
+	var steps []step
+	for s := 0; s < len(mapDatas[0]); s++ {
+		steps = append(steps, step{mapDatas[0][s], 1})
+	}
+	var completed []mapRange
+stepJmp:
+	for len(steps) > 0 {
+		s := steps[0]
+		steps = steps[1:]
+		if s.step == len(mapKeys)-1 {
+			completed = append(completed, s.mapRange)
+			if s.start < lowest {
+				lowest = s.start
+			}
+			continue
+		}
+
+		for _, mp := range mapDatas[s.step] {
+			b, i, rm := s.mapRange.intersect(mp)
+			if !b {
+				continue
+			}
+			if len(rm) != 0 {
+				for _, r := range rm {
+					steps = append(steps, step{r, s.step})
 				}
 			}
+			i.start += i.shift
+			i.end += i.shift
+			steps = append(steps, step{i, s.step + 1})
+			continue stepJmp
 		}
-		if val < lowest {
-			lowest = val
-		}
+		s.step += 1
+		steps = append(steps, s)
 	}
+
 	return lowest
 }
 
 // TODO: Finish optimizing this. Getting distract with BFS/DFS atm, which isn't related
 func Part2(lines []string) int {
 	lowest := math.MaxInt
-	val := 0
 	mapDatas := parseMappings(lines, 2)
-	mr := mapDatas[0]
-	var intersected []mapRange
-	for _, mapSeed := range mapDatas[0] {
-		val = mapSeed.start
-		for _, key := range mapKeys {
-			for _, mr := range mapDatas[key] {
-				if val >= mr.start && val < mr.end {
-					val = val + (mr.shift - mr.start)
-					break
+	var steps []step
+	for s := 0; s < len(mapDatas[0]); s++ {
+		steps = append(steps, step{mapDatas[0][s], 1})
+	}
+	var completed []mapRange
+stepJmp:
+	for len(steps) > 0 {
+		s := steps[0]
+		steps = steps[1:]
+		if s.step == len(mapKeys)-1 {
+			completed = append(completed, s.mapRange)
+			if s.start < lowest {
+				lowest = s.start
+			}
+			continue
+		}
+
+		for _, mp := range mapDatas[s.step] {
+			b, i, rm := s.mapRange.intersect(mp)
+			if !b {
+				continue
+			}
+			if len(rm) != 0 {
+				for _, r := range rm {
+					steps = append(steps, step{r, s.step})
 				}
 			}
+			i.start += i.shift
+			i.end += i.shift
+			steps = append(steps, step{i, s.step + 1})
+			continue stepJmp
 		}
-		if val < lowest {
-			lowest = val
-		}
+		s.step += 1
+		steps = append(steps, s)
 	}
+
 	return lowest
 }
 
 func parseMappings(lines []string, part int) map[int][]mapRange {
-	index := 1
+	index := 0
 	val := make(map[int][]mapRange)
 	var mapRanges []mapRange
 	for _, line := range lines {
@@ -103,17 +170,16 @@ func parseMappings(lines []string, part int) map[int][]mapRange {
 				}
 			} else if part == 2 {
 				split := strings.Split(line[len(mapKeys[0]):], " ")
-				seeds = make([]mapRange, len(split))
 				for i := 0; i < len(split); i += 2 {
 					start, _ := strconv.Atoi(split[i])
-					end, _ := strconv.Atoi(split[i+1])
-					seeds = append(seeds, mapRange{start: start, end: end})
+					length, _ := strconv.Atoi(split[i+1])
+					seeds = append(seeds, mapRange{start: start, end: start + length})
 				}
 			}
 			val[0] = seeds
 			continue
 		}
-		if index < len(mapKeys) && line == mapKeys[index] {
+		if index < len(mapKeys)-1 && line == mapKeys[index+1] {
 			if len(mapRanges) != 0 {
 				val[index] = mapRanges
 			}
@@ -125,7 +191,7 @@ func parseMappings(lines []string, part int) map[int][]mapRange {
 		dest, _ := strconv.Atoi(split[0])
 		src, _ := strconv.Atoi(split[1])
 		length, _ := strconv.Atoi(split[2])
-		mapRanges = append(mapRanges, mapRange{src, src + length, dest})
+		mapRanges = append(mapRanges, mapRange{src, src + length, dest - src})
 	}
 	val[index] = mapRanges
 

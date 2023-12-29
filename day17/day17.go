@@ -100,8 +100,8 @@ func Process(lines []string, part int) int {
 		}
 	}
 
-	sum, _, _ := astar.AStar[DirDistPoint](
-		DirDistPoint{Dir: east},
+	d, _, _ := astar.AStar[DirDistPoint](
+		&DirDistPoint{Dir: east},
 		endFunc,
 		partNeighbors,
 		func(node *DirDistPoint) int {
@@ -112,7 +112,7 @@ func Process(lines []string, part int) int {
 		},
 	)
 
-	return sum
+	return d.Score
 }
 
 func nextNode(x, y, dir int) (int, int) {
