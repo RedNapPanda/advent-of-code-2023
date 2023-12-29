@@ -122,7 +122,7 @@ stepJmp:
 	for len(steps) > 0 {
 		s := steps[0]
 		steps = steps[1:]
-		if s.step == len(mapKeys)-1 {
+		if s.step == len(mapKeys) {
 			completed = append(completed, s.mapRange)
 			if s.start < lowest {
 				lowest = s.start
@@ -195,8 +195,8 @@ func parseMappings(lines []string, part int) map[int][]mapRange {
 	}
 	val[index] = mapRanges
 
-	for _, v := range val {
-		slices.SortFunc(v, func(a, b mapRange) int {
+	for i, _ := range val {
+		slices.SortFunc(val[i], func(a, b mapRange) int {
 			return a.start - b.start
 		})
 	}
