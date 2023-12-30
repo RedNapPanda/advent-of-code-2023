@@ -6,6 +6,16 @@ import (
 	"testing"
 )
 
+/*
+Calculating possibilities from the end since we have a set number of broken spring groups to match
+?#?#?#?#?#?#?#? | (4, 0) ? | 1 [1 3 1 6]
+[? # ? # ? # ? # ? # ? # ? # ? _]
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1]
+[0 0 0 0 0 0 1 1 2 1 0 0 0 0 0 0]
+[0 0 0 0 2 1 3 1 0 0 0 0 0 0 0 0]
+[3 1 4 1 0 0 0 0 0 0 0 0 0 0 0 0]
+[5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+*/
 var example = []string{
 	"0 3 6 9 12 15",
 	"1 3 6 10 15 21",
