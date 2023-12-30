@@ -1,7 +1,6 @@
 package day19
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -22,26 +21,25 @@ type intRange struct {
 }
 
 func (i intRange) split(v int, ge bool) (intRange, bool, intRange, bool) {
-	var success, failure, ii intRange
+	var success, failure intRange
 	var sb, fb bool
-	if i.min <= v {
-		ii = intRange{i.min, min(i.max, v)}
-		if ge {
-			failure = ii
+	if ge {
+		if i.min <= v {
+			failure = intRange{i.min, min(i.max, v)}
 			fb = true
-		} else {
-			success = ii
+		}
+		if i.max > v {
+			success = intRange{max(i.min, v+1), i.max}
 			sb = true
 		}
-	}
-	if i.max >= v {
-		ii = intRange{max(i.min, v), i.max}
-		if ge {
-			success = ii
-			sb = true
-		} else {
-			failure = ii
+	} else {
+		if i.max >= v {
+			failure = intRange{max(i.min, v), i.max}
 			fb = true
+		}
+		if i.min < v {
+			success = intRange{i.min, min(i.max, v-1)}
+			sb = true
 		}
 	}
 	return success, sb, failure, fb
@@ -72,64 +70,50 @@ func Process(lines []string, version int) int {
 	parts, workflows := parse(lines)
 	var accepted []part
 
-	for _, p := range parts {
-		_ = f(&workflows, []part{p}, &accepted, 0)
-	}
-
-	// fmt.Printf("%+v\n", parts)
-	// fmt.Printf("%+v\n", accepted)
-
 	sum := 0
 	if version == 1 {
-		for _, p := range accepted {
-			// fmt.Printf("Accepted p %+v\n", p)
-			sum += p.x.min + p.m.min + p.a.min + p.s.min
+		for _, p := range parts {
+			_ = f(&workflows, p, &accepted)
 		}
 	} else {
-
+		sum = f(&workflows, part{intRange{1, 4000}, intRange{1, 4000}, intRange{1, 4000}, intRange{1, 4000}, 0, "in"}, &accepted)
 	}
 
+	if version == 1 {
+		for _, p := range accepted {
+			sum += p.x.min + p.m.min + p.a.min + p.s.min
+		}
+	}
 	return sum
 }
 
-func f(workflows *map[string]workflow, ps []part, acc *[]part, sum int) int {
-	if len(ps) == 0 {
-		return 0
-	}
-	p := ps[0]
-	ps = ps[1:]
+func f(workflows *map[string]workflow, p part, acc *[]part) int {
+	sum := 0
+	wk := (*workflows)[p.state]
 	if p.state == "R" {
 		return 0
 	}
 	if p.state == "A" {
-		// fmt.Printf("Solved p %+v\n", p)
 		*acc = append(*acc, p)
-		return (p.x.max - p.x.min) *
-			(p.m.max - p.m.min) *
-			(p.a.max - p.a.min) *
-			(p.s.max - p.s.min)
+		return (p.x.max - p.x.min + 1) *
+			(p.m.max - p.m.min + 1) *
+			(p.a.max - p.a.min + 1) *
+			(p.s.max - p.s.min + 1)
 	}
-	wk := (*workflows)[p.state]
 	r := wk.rules[p.ruleIdx]
 	v := p.value(r.c)
 	success, sb, fail, fb := v.split(r.val, r.ge)
 	if sb {
-		ps = append(ps, buildPart(r.c, p, success, 0, r.res))
+		sum += f(workflows, buildPart(r.c, p, success, 0, r.res), acc)
 	}
 	if fb {
 		if p.ruleIdx+1 >= len(wk.rules) {
-			if wk.fail == "R" {
-				fmt.Printf("wk.fail p %+v, r %c %d %t\n", p, r.c, r.val, r.ge)
-			}
-			ps = append(ps, buildPart(r.c, p, fail, 0, wk.fail))
+			sum += f(workflows, buildPart(r.c, p, fail, 0, wk.fail), acc)
 		} else {
-			if p.state == "R" {
-				fmt.Printf("p.state p %+v, r %c %d %t\n", p, r.c, r.val, r.ge)
-			}
-			ps = append(ps, buildPart(r.c, p, fail, p.ruleIdx+1, p.state))
+			sum += f(workflows, buildPart(r.c, p, fail, p.ruleIdx+1, p.state), acc)
 		}
 	}
-	return sum + f(workflows, ps, acc, sum)
+	return sum
 }
 
 func buildPart(c byte, old part, new intRange, ruleIdx int, state string) part {
