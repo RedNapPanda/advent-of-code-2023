@@ -59,7 +59,7 @@ func (game *game) possible(maxRed int, maxGreen int, maxBlue int) bool {
 }
 
 func parseGame(s string) (*game, error) {
-	gameRegex := regexp.MustCompile(`game (\d+): (.+)`)
+	gameRegex := regexp.MustCompile(`[gG]ame (\d+): (.+)`)
 	matches := gameRegex.FindAllStringSubmatch(s, 1)
 
 	id, _ := strconv.Atoi(matches[0][1])

@@ -1,8 +1,8 @@
 package day11
 
 import (
-	"aoc/aoc_util"
 	"fmt"
+	"image"
 )
 
 func Part1(lines []string) int {

@@ -10,7 +10,6 @@ var cache = make(map[string]int)
 var hashBytes []byte
 
 func Part1(lines []string) int {
-	value := 0
 	grid := make([][]byte, len(lines))
 	for i, line := range lines {
 		grid[i] = make([]byte, len(line))
@@ -21,27 +20,28 @@ func Part1(lines []string) int {
 
 	// transpose for recursion
 	aoc_util.TransposeMatrix(grid)
-	value = 0
+	rvalue := 0
 	for _, bytes := range grid {
-		value += scoreTiltWestWithoutShift(bytes, -1)
+		rvalue += scoreTiltWestWithoutShift(bytes, -1)
 	}
-	fmt.Printf("Recursive Value: %d\n", value)
 	aoc_util.TransposeMatrix(grid)
 	// transpose after to flip back since it's unmodified
-
 	shiftNorth(grid)
 
-	value = 0
+	value := 0
 	for n := 0; n < len(grid); n++ {
 		count := 0
 		for _, b := range grid[n] {
-			if b == 'W' {
+			if b == 'O' {
 				count++
 			}
 		}
 		value += count * (len(grid) - n)
 	}
-	fmt.Printf("Transpose Shifted Value: %d\n", value)
+
+	if rvalue != value {
+		return -1
+	}
 
 	return value
 }
@@ -70,7 +70,7 @@ func scoreTiltWestWithoutShift(slice []byte, lastRock int) int {
 				sum += sumGroup(len(slice), lastRock, count)
 			}
 			return sum + scoreTiltWestWithoutShift(slice, i)
-		case 'W':
+		case 'O':
 			count++
 		}
 	}
@@ -102,13 +102,12 @@ func Part2(lines []string, iterations int) int {
 	for n := 0; n < len(grid); n++ {
 		count := 0
 		for _, b := range grid[n] {
-			if b == 'W' {
+			if b == 'O' {
 				count++
 			}
 		}
 		value += count * (len(grid) - n)
 	}
-	fmt.Printf("Value: %d\n", value)
 	return value
 }
 
@@ -123,7 +122,6 @@ func cycleTilts(grid [][]byte, iterations int) {
 		return
 	}
 	cycleLen, i := 0, 0
-	// key := keyGrid(grid)
 	var key string
 	cycle := func() {
 		for n := 0; n < 4; n++ {
@@ -169,67 +167,10 @@ func shiftNorth(grid [][]byte) {
 			switch grid[row][col] {
 			case '#':
 				lastRock = row + 1
-			case 'W':
+			case 'O':
 				lastRock += 1
 				grid[row][col] = '.'
-				grid[lastRock-1][col] = 'W'
-			}
-		}
-	}
-}
-
-func shiftSouth(grid [][]byte) {
-	for col := 0; col < len(grid); col++ {
-		lastRock := len(grid) - 1
-		for row := len(grid) - 1; row >= 0; row-- {
-			switch grid[row][col] {
-			case '#':
-				lastRock = row - 1
-			case 'W':
-				lastRock -= 1
-				grid[row][col] = '.'
-				grid[lastRock+1][col] = 'W'
-			}
-		}
-	}
-}
-
-func shiftWest(grid [][]byte) {
-	openSpace := 0
-	var bytes []byte
-	for row := 0; row < len(grid); row++ {
-		bytes = grid[row]
-		for col := 0; col < len(bytes); col++ {
-			switch bytes[col] {
-			case 'W':
-				if col != openSpace {
-					bytes[openSpace] = 'W'
-					bytes[col] = '.'
-				}
-				openSpace = max(openSpace+1, 0)
-			case '#':
-				openSpace = max(col+1, 0)
-			}
-		}
-	}
-}
-
-func shiftEast(grid [][]byte) {
-	var openSpace int
-	var bytes []byte
-	for row := 0; row < len(grid); row++ {
-		bytes = grid[row]
-		openSpace = len(bytes) - 1
-		for col := len(bytes) - 1; col >= 0; col-- {
-			switch bytes[col] {
-			case 'W':
-				if col != openSpace {
-					bytes[openSpace] = 'W'
-					bytes[col] = '.'
-				}
-				openSpace = max(openSpace-1, 0)
-			case '#':
-				openSpace = max(col-1, 0)
+				grid[lastRock-1][col] = 'O'
 			}
 		}
 	}
