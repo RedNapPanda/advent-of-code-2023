@@ -42,22 +42,22 @@ func Part2(lines []string, expansion int) int {
 	return sum
 }
 
-func parseUniverse(lines []string, expand int) []aoc_util.Point {
+func parseUniverse(lines []string, expand int) []image.Point {
 	expand = expand - 1
-	var galaxies []aoc_util.Point
+	var galaxies []image.Point
 	var matrix [][]byte
 	inc := 0
 	// parse rows and insert extra empty rows
 	for x, line := range lines {
 		matrix = append(matrix, make([]byte, len(line)))
 		isEmpty := true
-		nilCoord := aoc_util.Point{X: -1, Y: -1}
+		nilCoord := image.Point{X: -1, Y: -1}
 		galaxy := nilCoord
 		for y, c := range []byte(line) {
 			matrix[x][y] = c
 			if c == '#' {
 				isEmpty = false
-				galaxy = aoc_util.Point{X: x + inc, Y: y}
+				galaxy = image.Point{X: x + inc, Y: y}
 				galaxies = append(galaxies, galaxy)
 			}
 		}
@@ -103,7 +103,7 @@ func parseUniverse(lines []string, expand int) []aoc_util.Point {
 // NO hint this year? other than the not so obvious repeating down-right path from galaxy 5 to 9
 // Path of down then right from 5 to 9 would have been more obvious
 // Found this after going down the Dijkstra's algorithm route....no thanks
-func manhattanDist(a, b aoc_util.Point) int {
+func manhattanDist(a, b image.Point) int {
 	return abs(a.X-b.X) + abs(a.Y-b.Y)
 }
 

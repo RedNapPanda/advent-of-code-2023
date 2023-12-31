@@ -6,14 +6,6 @@ import (
 	"time"
 )
 
-func Zero[T any]() T {
-	return *new(T)
-}
-
-func IsZero[T comparable](t T) bool {
-	return t == Zero[T]()
-}
-
 // Timer credits: https://stackoverflow.com/questions/45766572/is-there-an-efficient-way-to-calculate-execution-time-in-golang
 //
 // Learned more about defer and how you could use/abuse it like this

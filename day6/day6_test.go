@@ -2,6 +2,7 @@ package day6
 
 import (
 	aoc "aoc"
+	"aoc/aoc_util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,6 +19,7 @@ func TestPart1Example(t *testing.T) {
 }
 
 func TestPart1(t *testing.T) {
+	defer aoc_util.Timer("part1")()
 	input, _ := aoc.GetInputData(6)
 	output := Part1(input)
 
@@ -31,6 +33,7 @@ func TestPart2Example(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
+	defer aoc_util.Timer("part2")()
 	input, _ := aoc.GetInputData(6)
 	output := Part2(input)
 

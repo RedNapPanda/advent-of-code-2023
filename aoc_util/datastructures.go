@@ -18,10 +18,6 @@ type Pair[T, U any] struct {
 	Second U
 }
 
-type Point struct {
-	X, Y int
-}
-
 type DirPoint struct {
 	X, Y, Dir int
 }
